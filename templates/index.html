@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crop Yield Prediction</title>
+    <link rel="stylesheet" href="static/style.css">
+</head>
+
+<body>
+    <h1>Welcome to Crop Yeild Prediction</h1>
+    <form method="POST" action="/predict">
+        <label for="crop">Crop:</label>
+        <select name="crop" required>
+            <option value="rice">Rice</option>
+            <option value="wheat">Wheat</option>
+        </select>
+
+        <label for="area">Area Size (in hectares):</label>
+        <input type="number" name="area" required />
+
+        <label for="region">State/Region:</label>
+        <select name="region" required>
+            <option value="punjab">Punjab</option>
+            <option value="maharashtra">Maharashtra</option>
+            <!-- add more -->
+        </select>
+
+        <label for="year">Year (Optional):</label>
+        <input type="number" name="year" placeholder="Leave blank for current year" />
+
+        <input type="submit" value="Predict" />
+    </form>
+</body>
+
+</html>
