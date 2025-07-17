@@ -33,7 +33,6 @@ Accurate crop yield prediction is essential for optimizing agricultural output a
 
 ### **User Inputs**
 - `Crop` 
-- `Area Size`
 - `Year` (optional)
 - `Pesticide Usage`
 
