@@ -18,14 +18,10 @@ Accurate crop yield prediction is essential for optimizing agricultural output a
 
 ## 🧠 Features
 
-- ✅ Predicts crop yield based on:
-  - Crop type
-  - Year (optional, defaults to current)
-  - Pesticide usage
-  - Automatically fetched rainfall and temperature data via APIs
+- ✅ Predicts crop yield based on **Crop type,** **Year** (optional, defaults to **current**) **Pesticide usage**, Automatically fetched **rainfall** and **temperature** data via APIs.
 
-- 📊 Visualizes predictions and trends using Matplotlib and Seaborn
-- 🖥️ Web-based UI for easy input and results display using Flask
+- 📊 **Visualizes** predictions and trends using Matplotlib and Seaborn
+- 🖥️ **Web-based UI** for easy input and results display using Flask
 
 ---
 
@@ -38,12 +34,12 @@ Accurate crop yield prediction is essential for optimizing agricultural output a
 
 ### **Backend-Automated Inputs (via API)**
 - `Average Rainfall (mm)`
-- `Average Temperature (°C)`
+- `Temperature (°C)`
 
 ### **Outputs**
 - Predicted crop yield in **kg/ha** or **hg/ha**
 - **Line/Bar** plot of predicted yield trends
-- **Heatmap** or distribution plot of influencing factors
+- **Heatmap** or **distribution** plot of influencing factors
 
 ---
 
