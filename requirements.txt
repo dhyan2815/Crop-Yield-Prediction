@@ -5,3 +5,5 @@ matplotlib
 seaborn
 numpy
 sklearn
+requests
+streamlit
