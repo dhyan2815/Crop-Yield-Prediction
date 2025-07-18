@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 
 # Load Models
-lr_model = joblib.load('model/linear_model.pkl')
-rf_model = joblib.load('model/rf_model.pkl')
+lr_model = joblib.load('/models/linear_regression_model.pkl')
+rf_model = joblib.load('/models/random_forest_model.pkl')
 
 # Helper Functions
 def get_temperature(api_key):
