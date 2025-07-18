@@ -1,37 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="/static/style.css">
     <title>Crop Yield Prediction</title>
-    <link rel="stylesheet" href="static/style.css">
-</head>
+  </head>
+  <body>
+    <form action="/predict" method="POST">
+      <label for="crop">Crop:</label>
+      <select name="crop">
+        <option value="Rice">Rice</option>
+        <option value="Wheat">Wheat</option>
+        <!-- Add more -->
+      </select>
 
-<body>
-    <h1>Welcome to Crop Yield Prediction</h1>
-    <form method="POST" action="/predict">
-        <label for="crop">Crop:</label>
-        <select name="crop" required>
-            <option value="rice">Rice</option>
-            <option value="wheat">Wheat</option>
-        </select>
+      <label for="year">Year:</label>
+      <input type="number" name="year" value="{{ current_year }}" readonly />
 
-        <label for="area">Area Size (in hectares):</label>
-        <input type="number" name="area" required />
+      <label for="pesticide">Pesticide Use (tonnes):</label>
+      <input type="number" name="pesticide" step="0.01" required />
 
-        <label for="region">State/Region:</label>
-        <select name="region" required>
-            <option value="punjab">Punjab</option>
-            <option value="maharashtra">Maharashtra</option>
-            <!-- add more -->
-        </select>
+      <!-- These will be set via JS using browser's geolocation -->
+      <input type="hidden" name="lat" id="lat" />
+      <input type="hidden" name="lon" id="lon" />
 
-        <label for="year">Year (Optional):</label>
-        <input type="number" name="year" placeholder="Leave blank for current year" />
-
-        <input type="submit" value="Predict" />
+      <button type="submit">Predict Yield</button>
     </form>
-</body>
 
+    {% if prediction_lr %}
+    <h2>Predicted Yield</h2>
+    <p>Linear Regression: {{ prediction_lr }} kg/ha</p>
+    <p>Random Forest: {{ prediction_rf }} kg/ha</p>
+
+    <h3>Backend Data</h3>
+    <ul>
+      <li>Rainfall: {{ rainfall }} mm</li>
+      <li>Temperature: {{ temperature }}°C</li>
+    </ul>
+
+    <!-- Matplotlib graphs here -->
+    <img src="{{ url_for('static', filename='yield_plot.png') }}" />
+    {% endif %}
+
+    <script>
+      navigator.geolocation.getCurrentPosition(function (position) {
+        document.getElementById("lat").value = position.coords.latitude;
+        document.getElementById("lon").value = position.coords.longitude;
+      });
+    </script>
+  </body>
 </html>
