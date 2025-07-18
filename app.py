@@ -5,6 +5,7 @@ import joblib
 import requests
 import matplotlib.pyplot as plt
 import seaborn as sns
+from streamlit_geolocation import geolocation
 
 # Load Models
 lr_model = joblib.load('models/linear_regression_model.pkl')
@@ -14,7 +15,7 @@ rf_model = joblib.load('models/random_forest_model.pkl')
 def get_temperature(api_key):
     api_key = "60d79498a70e5a4e54bc7620b6914ee0"
     try:
-        url = f"https://api.openweathermap.org/data/2.5/weather&appid={api_key}&units=metric"
+        url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
         response = requests.get(url)
         data = response.json()
         return data['main']['temp']
@@ -58,13 +59,17 @@ crop = st.selectbox("Select Crop", crop_list)
 year = st.number_input("Select Year", min_value=2000, max_value=2050, value=2025, step=1)
 pesticides = st.number_input("Enter Pesticide Usage (tonnes)", min_value=0.0, step=0.1)
 
-# Location Inputs (Latitude & Longitude)
-st.markdown("##### 🌡️ Allow location access or enter manually")
-col1, col2 = st.columns(2)
-with col1:
-    lat = st.number_input("Latitude", value=20.5937)
-with col2:
-    lon = st.number_input("Longitude", value=78.9629)
+# Location Inputs
+location = geolocation()
+
+if location:
+    lat = location['latitude']
+    lon = location['longitude']
+    st.success(f"📍 Location acquired: {lat}, {lon}")
+else:
+    st.warning("📍 Unable to detect location. Please enter manually.")
+    lat = st.number_input("Latitude", value=23.0225)
+    lon = st.number_input("Longitude", value=72.5714)
 
 # Predict Button
 if st.button("Predict Yield"):
