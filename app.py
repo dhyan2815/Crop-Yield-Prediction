@@ -12,7 +12,7 @@ lr_model = joblib.load('models/linear_regression_model.pkl')
 rf_model = joblib.load('models/random_forest_model.pkl')
 
 # Helper Functions
-def get_temperature(api_key):
+def get_temperature(api_key, lat, lon):
     api_key = "60d79498a70e5a4e54bc7620b6914ee0"
     try:
         url = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={api_key}&units=metric"
@@ -65,7 +65,7 @@ location = geolocation()
 if location:
     lat = location['latitude']
     lon = location['longitude']
-    st.success(f"📍 Location acquired: {lat}, {lon}")
+    st.success("📍 Location acquired automatically")
 else:
     st.warning("📍 Unable to detect location. Please enter manually.")
     lat = st.number_input("Latitude", value=23.0225)
