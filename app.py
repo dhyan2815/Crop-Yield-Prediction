@@ -5,7 +5,6 @@ import joblib
 import requests
 import matplotlib.pyplot as plt
 import seaborn as sns
-from streamlit_geolocation import streamlit_geolocation
 
 # =============================================================================
 # CONFIGURATION AND SETUP
@@ -22,6 +21,8 @@ st.set_page_config(
 # MODEL LOADING
 # =============================================================================
 
+import time
+
 @st.cache_resource
 def load_models():
     """
@@ -31,7 +32,10 @@ def load_models():
     try:
         lr_model = joblib.load('models/linear_regression_model.pkl')
         rf_model = joblib.load('models/random_forest_model.pkl')
-        st.success("✅ Models loaded successfully!")
+        msg = st.empty()
+        msg.success("✅ Models loaded successfully!")
+        time.sleep(4)
+        msg.empty()
         return lr_model, rf_model
     except Exception as e:
         st.error(f"❌ Error loading models: {e}")
@@ -40,9 +44,7 @@ def load_models():
 # Load models
 lr_model, rf_model = load_models()
 
-# =============================================================================
 # HELPER FUNCTIONS
-# =============================================================================
 
 def get_temperature(lat, lon, api_key):
     """
@@ -138,6 +140,27 @@ def get_features_by_crop_year():
     except Exception as e:
         st.error(f"❌ Error loading features: {e}")
         return pd.DataFrame()
+
+
+@st.cache_data
+def get_dataset_stats():
+    """
+    Compute basic dataset statistics used for sensible UI defaults and bounds.
+    Returns:
+        dict: {'pesticide_min': float, 'pesticide_max': float, 'pesticide_median': float}
+    """
+    try:
+        df = pd.read_csv("data/processed/CLEANED_Processed_India_Crop_Yield_Data.csv")
+        df.columns = df.columns.str.strip()
+        stats = {
+            'pesticide_min': float(df['pesticides_tonnes'].min()),
+            'pesticide_max': float(df['pesticides_tonnes'].max()),
+            'pesticide_median': float(df['pesticides_tonnes'].median()),
+        }
+        return stats
+    except Exception as e:
+        st.warning(f"⚠️ Could not compute dataset stats: {e}")
+        return {}
 
 def get_average_rainfall(crop, year, rainfall_df):
     """
@@ -260,7 +283,7 @@ def create_trend_plot():
         return None
 
 
-def validate_inputs(crop, year, pesticides, lat, lon, min_year, max_year):
+def validate_inputs(crop, year, pesticides, min_year, max_year):
     """
     Validate user inputs before making predictions.
     
@@ -288,12 +311,6 @@ def validate_inputs(crop, year, pesticides, lat, lon, min_year, max_year):
     if pesticides < 0:
         errors.append("Pesticide usage cannot be negative")
     
-    # Validate coordinates
-    if lat < -90 or lat > 90:
-        errors.append("Latitude must be between -90 and 90")
-    if lon < -180 or lon > 180:
-        errors.append("Longitude must be between -180 and 180")
-    
     # Display errors if any
     if errors:
         for error in errors:
@@ -314,29 +331,11 @@ def main():
     
     # Header
     st.title("🌾 Yield Metrics")
-    st.markdown("A crop yield prediction app")
-    
-    # Sidebar for additional options
-    with st.sidebar:
-        st.header("⚙️ Settings")
-        
-        # Debug mode toggle
-        debug_mode = st.checkbox("🐛 Debug Mode", help="Enable to see detailed debugging information")
-        st.session_state.debug_mode = debug_mode
-        
-        # API Key input
-        api_key_default = st.secrets.get('OPENWEATHERMAP_API_KEY', '') if hasattr(st, 'secrets') else ''
-        api_key = st.text_input(
-            "🔑 OpenWeatherMap API Key",
-            value=api_key_default,
-            type="password",
-            help="Enter your OpenWeatherMap API key"
-        )
-        
-        st.markdown("---")
-        st.markdown("### 📊 Model Information")
-        st.markdown("- **Linear Regression**: Simple linear model")
-        st.markdown("- **Random Forest**: Ensemble tree-based model")
+    st.markdown("""
+    Welcome to **Yield Metrics** – a crop yield prediction app for India.
+
+    This tool uses historical agricultural and climate data to forecast crop yields, helping farmers, researchers, and policymakers make informed decisions.
+    """)
     
     # Check if models are loaded
     if lr_model is None or rf_model is None:
@@ -351,53 +350,38 @@ def main():
     available_crops = sorted(features_df['Item'].unique())
     min_year = int(features_df['Year'].min())
     max_year = int(features_df['Year'].max())
+    dataset_stats = get_dataset_stats()
 
     # Main content area
-    col1, col2 = st.columns([2, 1])
-    
-    with col1:
-        st.header("📝 Input Parameters")
-        
-        # Crop selection
-        crop = st.selectbox("🌱 Select Crop", available_crops, help="Choose the crop for yield prediction")
-        
-        # Year selection
-        year = st.number_input(
-            "📅 Select Year", 
-            min_value=min_year, 
-            max_value=max_year, 
-            value=max_year, 
-            step=1,
-            help=f"Select a year between {min_year} and {max_year} available in the dataset"
-        )
-        
-        # Pesticide usage
-        pesticides = st.number_input(
-            "🧪 Pesticide Usage (tonnes)", 
-            min_value=0.0, 
-            value=5000.0, 
-            step=100.0,
-            help="Enter the amount of pesticides to be used"
-        )
-    
-    with col2:
-        st.header("📍 Location")
-        
-        # Get location using geolocation
-        location = streamlit_geolocation()
-        
-        if location and location.get('latitude') and location.get('longitude'):
-            lat = location['latitude']
-            lon = location['longitude']
-            st.success("📍 Location acquired automatically")
-            
-            # Debug information
-            if debug_mode:
-                st.write(f"📍 Lat: {lat}, Lon: {lon}")
-        else:
-            st.warning("📍 Unable to detect location. Please enter manually.")
-            lat = st.number_input("Latitude", value=23.0225, min_value=-90.0, max_value=90.0)
-            lon = st.number_input("Longitude", value=72.5714, min_value=-180.0, max_value=180.0)
+    st.header("📝 Input Parameters")
+    st.caption(f"Available years in dataset: {min_year} - {max_year}")
+
+    # Crop selection
+    crop = st.selectbox("🌱 Select Crop", available_crops, help="Choose the crop for yield prediction")
+
+    # Year selection
+    year = st.number_input(
+        "📅 Select Year", 
+        min_value=min_year, 
+        max_value=max_year, 
+        value=max_year, 
+        step=1,
+        help=f"Select a year between {min_year} and {max_year} available in the dataset"
+    )
+
+    # Pesticide usage
+    default_pest = float(dataset_stats.get('pesticide_median', 5000.0))
+    min_pest = float(dataset_stats.get('pesticide_min', 0.0))
+    max_pest = float(dataset_stats.get('pesticide_max', default_pest * 10))
+    step_pest = float(max(1.0, round((max_pest - min_pest) / 200.0)))
+    pesticides = st.number_input(
+        "🧪 Pesticide Usage (tonnes)", 
+        min_value=min_pest, 
+        max_value=max_pest,
+        value=default_pest, 
+        step=step_pest,
+        help=f"Based on dataset: min={min_pest:.0f}, median={default_pest:.0f}, max={max_pest:.0f}"
+    ) 
     
     st.markdown("---")
     
@@ -405,7 +389,7 @@ def main():
     if st.button("🚀 Predict Yield", type="primary", use_container_width=True):
         
         # Validate inputs
-        if not validate_inputs(crop, year, pesticides, lat, lon, min_year, max_year):
+        if not validate_inputs(crop, year, pesticides, min_year, max_year):
             st.stop()
         
         # Show progress
@@ -419,22 +403,11 @@ def main():
             rainfall = float(match['average_rain_fall_mm_per_year'].values[0])
             dataset_temp = float(match['avg_temp'].values[0])
 
-            # Try to get live temperature; fallback to dataset temperature
-            temp = None
-            if api_key and str(api_key).strip():
-                temp = get_temperature(lat, lon, api_key)
-            if temp is None:
-                temp = dataset_temp
-                st.info("ℹ️ Using dataset average temperature for the selected crop and year.")
+            # Use dataset temperature directly for consistency with training data
+            temp = dataset_temp
+            st.info("ℹ️ Using dataset average temperature for the selected crop and year.")
             
-            # Debug information
-            if debug_mode:
-                st.write("🔍 Input Summary:")
-                st.write(f"   - Crop: {crop}")
-                st.write(f"   - Year: {year}")
-                st.write(f"   - Temperature: {temp}°C")
-                st.write(f"   - Rainfall: {rainfall} mm")
-                st.write(f"   - Pesticides: {pesticides} tonnes")
+            # Debug information removed in simplified UI
             
             # Make predictions
             try:
@@ -482,8 +455,6 @@ def main():
                 
             except Exception as e:
                 st.error(f"❌ Error making predictions: {e}")
-                if debug_mode:
-                    st.write(f"🔍 Error details: {str(e)}")
     
     # Footer
     st.markdown("---")

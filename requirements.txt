@@ -1,4 +1,3 @@
-Flask
 joblib
 pandas
 matplotlib
@@ -7,4 +6,3 @@ numpy
 scikit-learn==1.7.0
 requests
 streamlit
-streamlit-geolocation
