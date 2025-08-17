@@ -13,7 +13,7 @@ from streamlit_geolocation import streamlit_geolocation
 
 # Set page configuration
 st.set_page_config(
-    page_title="Crop Yield Predictor",
+    page_title="Yield Metrics",
     layout="centered",
     initial_sidebar_state="expanded"
 )
@@ -114,6 +114,30 @@ def get_rainfall_data():
         st.error(f"❌ Error loading rainfall data: {e}")
         return pd.DataFrame()
 
+
+@st.cache_data
+def get_features_by_crop_year():
+    """
+    Load and cache crop-year level features (rainfall and temperature) from the processed CSV.
+    Returns:
+        pandas.DataFrame: columns ['Item', 'Year', 'average_rain_fall_mm_per_year', 'avg_temp']
+    """
+    try:
+        df = pd.read_csv("data/processed/CLEANED_Processed_India_Crop_Yield_Data.csv")
+        df.columns = df.columns.str.strip()
+        features_df = (
+            df.groupby(['Item', 'Year'])
+              [['average_rain_fall_mm_per_year', 'avg_temp']]
+              .mean()
+              .reset_index()
+        )
+        return features_df
+    except FileNotFoundError:
+        st.error("❌ Cleaned CSV file not found. Please run the data cleaning notebook first.")
+        return pd.DataFrame()
+    except Exception as e:
+        st.error(f"❌ Error loading features: {e}")
+        return pd.DataFrame()
 
 def get_average_rainfall(crop, year, rainfall_df):
     """
@@ -236,7 +260,7 @@ def create_trend_plot():
         return None
 
 
-def validate_inputs(crop, year, pesticides, lat, lon):
+def validate_inputs(crop, year, pesticides, lat, lon, min_year, max_year):
     """
     Validate user inputs before making predictions.
     
@@ -257,8 +281,8 @@ def validate_inputs(crop, year, pesticides, lat, lon):
         errors.append("Please select a crop")
     
     # Validate year
-    if year < 1990 or year > 2050:
-        errors.append("Year must be between 1990 and 2050")
+    if year < min_year or year > max_year:
+        errors.append(f"Year must be between {min_year} and {max_year}")
     
     # Validate pesticides
     if pesticides < 0:
@@ -289,8 +313,8 @@ def main():
     """
     
     # Header
-    st.title("🌾 Crop Yield Prediction App")
-    st.markdown("---")
+    st.title("🌾 Yield Metrics")
+    st.markdown("A crop yield prediction app")
     
     # Sidebar for additional options
     with st.sidebar:
@@ -301,9 +325,10 @@ def main():
         st.session_state.debug_mode = debug_mode
         
         # API Key input
+        api_key_default = st.secrets.get('OPENWEATHERMAP_API_KEY', '') if hasattr(st, 'secrets') else ''
         api_key = st.text_input(
             "🔑 OpenWeatherMap API Key",
-            value="60d79498a70e5a4e54bc7620b6914ee0",
+            value=api_key_default,
             type="password",
             help="Enter your OpenWeatherMap API key"
         )
@@ -318,6 +343,15 @@ def main():
         st.error("❌ Failed to load models. Please check if model files exist.")
         return
     
+    # Load features once and derive dynamic crop list and year bounds
+    features_df = get_features_by_crop_year()
+    if features_df.empty:
+        st.error("❌ Features could not be loaded from dataset.")
+        return
+    available_crops = sorted(features_df['Item'].unique())
+    min_year = int(features_df['Year'].min())
+    max_year = int(features_df['Year'].max())
+
     # Main content area
     col1, col2 = st.columns([2, 1])
     
@@ -325,26 +359,16 @@ def main():
         st.header("📝 Input Parameters")
         
         # Crop selection
-        crop_list = [
-            'Cassava',
-            'Maize',
-            'Potatoes',
-            'Rice Paddy',
-            'Sorghum',
-            'Soybeans',
-            'Sweet Potatoes',
-            'Wheat'
-        ]
-        crop = st.selectbox("🌱 Select Crop", crop_list, help="Choose the crop for yield prediction")
+        crop = st.selectbox("🌱 Select Crop", available_crops, help="Choose the crop for yield prediction")
         
         # Year selection
         year = st.number_input(
             "📅 Select Year", 
-            min_value=1990, 
-            max_value=2050, 
-            value=2025, 
+            min_value=min_year, 
+            max_value=max_year, 
+            value=max_year, 
             step=1,
-            help="Select the year for prediction"
+            help=f"Select a year between {min_year} and {max_year} available in the dataset"
         )
         
         # Pesticide usage
@@ -381,29 +405,27 @@ def main():
     if st.button("🚀 Predict Yield", type="primary", use_container_width=True):
         
         # Validate inputs
-        if not validate_inputs(crop, year, pesticides, lat, lon):
+        if not validate_inputs(crop, year, pesticides, lat, lon, min_year, max_year):
             st.stop()
         
         # Show progress
         with st.spinner("🔄 Fetching weather data and making predictions..."):
             
-            # Get temperature
-            temp = get_temperature(lat, lon, api_key)
-            
-            # Get rainfall data
-            rainfall_df = get_rainfall_data()
-            
-            if rainfall_df.empty:
-                st.error("❌ Failed to load rainfall data")
+            # Get dataset features for the selected crop-year
+            match = features_df[(features_df['Item'] == crop) & (features_df['Year'] == int(year))]
+            if match.empty:
+                st.error("❌ No dataset features found for the selected crop and year.")
                 st.stop()
-            
-            # Get rainfall for selected crop and year
-            rainfall = get_average_rainfall(crop, year, rainfall_df)
-            
-            # Check if we have all required data
-            if temp is None or rainfall is None:
-                st.error("❌ Could not fetch necessary weather data. Please try again.")
-                st.stop()
+            rainfall = float(match['average_rain_fall_mm_per_year'].values[0])
+            dataset_temp = float(match['avg_temp'].values[0])
+
+            # Try to get live temperature; fallback to dataset temperature
+            temp = None
+            if api_key and str(api_key).strip():
+                temp = get_temperature(lat, lon, api_key)
+            if temp is None:
+                temp = dataset_temp
+                st.info("ℹ️ Using dataset average temperature for the selected crop and year.")
             
             # Debug information
             if debug_mode:
@@ -416,8 +438,12 @@ def main():
             
             # Make predictions
             try:
-                # Construct feature vector for prediction
-                input_features = np.array([[rainfall, temp, pesticides]])
+                # Construct feature DataFrame for prediction with explicit column names
+                input_features = pd.DataFrame([{
+                    'average_rain_fall_mm_per_year': rainfall,
+                    'avg_temp': temp,
+                    'pesticides_tonnes': pesticides
+                }])
                 
                 # Get predictions from both models
                 yield_lr = lr_model.predict(input_features)[0]
@@ -464,7 +490,7 @@ def main():
     st.markdown(
         """
         <div style='text-align: center; color: gray;'>
-        <p>🌾 Crop Yield Prediction App | Built with Streamlit and Machine Learning</p>
+        <p>🌾 Yield Metrics | Built with Streamlit and Machine Learning</p>
         </div>
         """,
         unsafe_allow_html=True
@@ -477,4 +503,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
