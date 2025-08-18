@@ -28,3 +28,9 @@ Yield Metrics is a Streamlit app that predicts crop yields in India using histor
 
 ![Historical Yield Trend](assets/hist_yield_trend_graph.png)
 
+
+## Disclaimer
+
+- Predictions are estimates based on historical data and may not reflect current conditions.
+- Use results for guidance only; not for critical decisions.
+- No warranties; use at your own risk.
