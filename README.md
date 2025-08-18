@@ -2,6 +2,11 @@
 
 Yield Metrics is a Streamlit app that predicts crop yields in India using historical data. It combines rainfall, average temperature, and pesticide usage to estimate yield, and visualizes results for quick comparison and context.
 
+<div align="center">
+  <img src="assets/yield_workflow.png" alt="Project at a Glance - SmokeSignal AI" width="800" />
+  
+</div>
+
 ## What you can do
 - Predict yield for a selected crop and year
 - See predictions from two models: Linear Regression and Random Forest

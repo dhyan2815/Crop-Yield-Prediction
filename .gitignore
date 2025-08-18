@@ -27,4 +27,3 @@ venv/
 .DS_Store
 Thumbs.db
 .venv/Lib/site-packages/adodbapi/examples/db_table_names.py
-assets/
