@@ -333,9 +333,10 @@ def main():
     st.title("🌾 Yield Metrics")
     st.markdown("""
     Welcome to **Yield Metrics** – a crop yield prediction app for India.
-
-    This tool uses historical agricultural and climate data to forecast crop yields, helping farmers, researchers, and policymakers make informed decisions.
     """)
+    
+    # Disclaimer
+    st.warning("⚠️ **Predictions** are based on historical data and may not reflect current conditions. Use results for guidance only, not for critical decisions.")
     
     # Check if models are loaded
     if lr_model is None or rf_model is None:
@@ -461,7 +462,8 @@ def main():
     st.markdown(
         """
         <div style='text-align: center; color: gray;'>
-        <p>🌾 Yield Metrics | Built with Streamlit and Machine Learning</p>
+        <p>🌾 Yield Metrics</p>
+        <p style='font-size: 0.9em;'>Built with Streamlit - Made by Dhyan Patel</p>
         </div>
         """,
         unsafe_allow_html=True
