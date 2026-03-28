@@ -463,7 +463,7 @@ def main():
         """
         <div style='text-align: center; color: gray;'>
         <p>🌾 Yield Metrics</p>
-        <p style='font-size: 0.9em;'>Built with Streamlit - Made by Dhyan Patel</p>
+        <p style='font-size: 0.9em;'>Built with Streamlit</p>
         </div>
         """,
         unsafe_allow_html=True
