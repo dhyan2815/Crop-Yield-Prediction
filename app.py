@@ -27,8 +27,9 @@ from scripts.feature_engineer import get_feature_names
 
 st.set_page_config(
     page_title="Yield Metrics",
+    page_icon="🌾",
     layout="centered",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="collapsed"
 )
 
 # =============================================================================
