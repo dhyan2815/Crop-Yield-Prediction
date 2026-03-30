@@ -348,7 +348,11 @@ def main():
     if features_df.empty:
         st.error("❌ Features could not be loaded from dataset.")
         return
+    # Clean the crop names exactly as training did (strip whitespace & quotes)
+    features_df['Item'] = features_df['Item'].str.strip().str.replace('"', '', regex=False)
     available_crops = sorted(features_df['Item'].unique())
+    # Prepare one‑hot column names for each crop (matching model training)
+    crop_columns = [f'Item_{c}' for c in available_crops]
     min_year = int(features_df['Year'].min())
     max_year = int(features_df['Year'].max())
     dataset_stats = get_dataset_stats()
@@ -412,12 +416,22 @@ def main():
             
             # Make predictions
             try:
-                # Construct feature DataFrame for prediction with explicit column names
-                input_features = pd.DataFrame([{
+                # Construct feature DataFrame for prediction with explicit column names and crop one-hot encoding
+                feature_dict = {
                     'average_rain_fall_mm_per_year': rainfall,
                     'avg_temp': temp,
-                    'pesticides_tonnes': pesticides
-                }])
+                    'pesticides_tonnes': pesticides,
+                }
+                # Initialize all crop one-hot columns to 0
+                for col in crop_columns:
+                    feature_dict[col] = 0
+                # Activate the column for the selected crop
+                selected_col = f'Item_{crop}'
+                if selected_col in feature_dict:
+                    feature_dict[selected_col] = 1
+                else:
+                    st.warning(f"Crop column {selected_col} not found in model features.")
+                input_features = pd.DataFrame([feature_dict])
                 
                 # Get predictions from both models
                 yield_lr = lr_model.predict(input_features)[0]
