@@ -1,5 +1,5 @@
 # Local Claude Code settings file
-.claude/settings.local.json
+.claude/
 __pycache__/
 *.py[cod]
 *$py.class
