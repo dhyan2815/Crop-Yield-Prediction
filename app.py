@@ -33,6 +33,119 @@ st.set_page_config(
 )
 
 # =============================================================================
+# CUSTOM STYLING
+# =============================================================================
+
+st.markdown("""
+<style>
+    /* Main background */
+    .stApp {
+        background-color: #FAFAFA;
+    }
+
+    /* Section headers */
+    h2 {
+        color: #1A1A2E !important;
+        font-weight: 600 !important;
+        margin-top: 1.5rem !important;
+        margin-bottom: 1rem !important;
+        font-size: 1.25rem !important;
+    }
+
+    h3 {
+        color: #1A1A2E !important;
+        font-weight: 600 !important;
+        font-size: 1rem !important;
+    }
+
+    /* Success message */
+    .stSuccess {
+        background-color: #E8F5E9 !important;
+        border-left: 4px solid #2D5A27 !important;
+    }
+
+    /* Info message */
+    .stInfo {
+        background-color: #E3F2FD !important;
+        border-left: 4px solid #1976D2 !important;
+    }
+
+    /* Warning banner */
+    .stWarning {
+        background-color: #FFF8E1 !important;
+        border-left: 4px solid #F59E0B !important;
+    }
+
+    /* Metric styling */
+    .stMetric {
+        background-color: #FFFFFF;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    /* Custom table styling */
+    .custom-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 1rem 0;
+        font-size: 0.95rem;
+    }
+
+    .custom-table th {
+        background-color: #E8F5E9;
+        color: #1A1A2E;
+        font-weight: 600;
+        padding: 12px 16px;
+        text-align: left;
+        border-bottom: 2px solid #2D5A27;
+    }
+
+    .custom-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #E5E7EB;
+    }
+
+    .custom-table tr:nth-child(even) {
+        background-color: #FAFAFA;
+    }
+
+    .custom-table tr:hover {
+        background-color: #F5F5F5;
+    }
+
+    /* Number cells right-aligned */
+    .custom-table td:nth-child(2),
+    .custom-table td:nth-child(3) {
+        text-align: right;
+        font-family: 'SF Mono', Monaco, 'Courier New', monospace;
+    }
+
+    /* Best model highlight */
+    .best-model {
+        background-color: #E8F5E9 !important;
+        font-weight: 600;
+        color: #2D5A27;
+    }
+
+    /* Footer styling */
+    .footer {
+        text-align: center;
+        color: #6B7280;
+        font-size: 0.875rem;
+        margin-top: 3rem;
+        padding-top: 1rem;
+        border-top: 1px solid #E5E7EB;
+    }
+
+    /* Spinner styling */
+    .stSpinner > div {
+        border-color: #2D5A27 !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# =============================================================================
 # MODEL LOADING (Cached)
 # =============================================================================
 
