@@ -254,6 +254,43 @@ def build_prediction_features(crop: str, year: int, pesticides: float,
     return pd.DataFrame([feature_dict])
 
 
+def get_feature_importance(rf_model, crop_columns: list) -> dict:
+    """
+    Extract and normalize feature importance from Random Forest model.
+
+    Returns a dictionary of feature names to importance values.
+    """
+    # Get feature importances from RF model
+    importances = rf_model.feature_importances_
+    feature_names = rf_model.feature_names_in_
+
+    # Create importance dictionary
+    importance_dict = dict(zip(feature_names, importances))
+
+    # Group crop columns into single "Crop Type" importance
+    crop_importance = sum(
+        importance_dict.get(col, 0) for col in crop_columns
+    )
+
+    # Build display-friendly importance dict
+    display_importance = {
+        'Crop Type': crop_importance,
+        'Rainfall': importance_dict.get('average_rain_fall_mm_per_year', 0),
+        'Temperature': importance_dict.get('avg_temp', 0),
+        'Pesticides': importance_dict.get('pesticides_tonnes', 0),
+        'Year': importance_dict.get('year_normalized', 0),
+    }
+
+    # Normalize to percentages
+    total = sum(display_importance.values())
+    if total > 0:
+        display_importance = {
+            k: v / total for k, v in display_importance.items()
+        }
+
+    return display_importance
+
+
 def create_prediction_plot(y_lr: float, y_rf: float, crop: str, year: int):
     """Create bar plot comparing model predictions."""
     fig, ax = plt.subplots(figsize=(10, 6))
