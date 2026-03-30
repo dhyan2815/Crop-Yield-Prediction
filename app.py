@@ -291,28 +291,43 @@ def get_feature_importance(rf_model, crop_columns: list) -> dict:
     return display_importance
 
 
-def create_prediction_plot(y_lr: float, y_rf: float, crop: str, year: int):
-    """Create bar plot comparing model predictions."""
-    fig, ax = plt.subplots(figsize=(10, 6))
+def display_prediction_table(y_lr: float, y_rf: float):
+    """
+    Display prediction results in a clean, styled table.
 
-    models = ['Linear Regression', 'Random Forest']
-    predictions = [y_lr, y_rf]
-    colors = ['skyblue', 'lightgreen']
+    Shows both model predictions with percentage comparison to RF.
+    """
+    # Calculate max value for percentage comparison
+    max_pred = max(y_lr, y_rf)
+    lr_pct = (y_lr / max_pred) * 100 if max_pred > 0 else 0
+    rf_pct = (y_rf / max_pred) * 100 if max_pred > 0 else 0
 
-    bars = ax.bar(models, predictions, color=colors, alpha=0.8)
+    # Build HTML table
+    table_html = """
+    <table class="custom-table">
+        <thead>
+            <tr>
+                <th>Model</th>
+                <th>Prediction (kg/ha)</th>
+                <th>Relative Score</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>Linear Regression</td>
+                <td>{:.0f}</td>
+                <td>{:.1f}%</td>
+            </tr>
+            <tr class="best-model">
+                <td>Random Forest</td>
+                <td>{:.0f}</td>
+                <td>{:.1f}%</td>
+            </tr>
+        </tbody>
+    </table>
+    """.format(y_lr, lr_pct, y_rf, rf_pct)
 
-    for bar, pred in zip(bars, predictions):
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height + height*0.01,
-               f'{pred:.0f} kg/ha', ha='center', va='bottom', fontweight='bold')
-
-    ax.set_ylabel('Predicted Yield (kg/ha)', fontsize=12)
-    ax.set_title(f'{crop} Yield Prediction for {year}', fontsize=14, fontweight='bold')
-    ax.grid(axis='y', alpha=0.3)
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-
-    return fig
+    st.markdown(table_html, unsafe_allow_html=True)
 
 
 def create_trend_plot(df: pd.DataFrame, crop: str):
