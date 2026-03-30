@@ -12,16 +12,16 @@ This document outlines a strategic plan to modernize the application. The propos
 
 The current system is structured as follows:
 -   **Data Processing (`notebooks/`):** A series of Jupyter notebooks handle data ingestion from a raw CSV, filtering for data from India, feature engineering, and cleaning.
--   **Model Training (`notebooks/model_training.ipynb`):** A dedicated notebook trains a Linear Regression and a Random Forest model on basic features (temperature, rainfall, pesticide use) and saves them as `.pkl` files.
+-   **Model Training (`notebooks/model_training.ipynb` + `train_models_with_crop.py`):** A dedicated notebook trains a Linear Regression and a Random Forest model. A standalone Python script (`train_models_with_crop.py`) provides a clean, reproducible training pipeline that includes crop one‑hot encoding as a model feature.
 -   **Web Application (`app.py`):** A Streamlit application loads the pre-trained models and serves predictions based on user inputs for crop, year, and pesticide usage. It uses historical data for its predictions.
 
 ### Identified Limitations
 
 1.  **Outdated Core Dataset:** The primary dataset (`yield_df.csv`) only contains data up to 2013. This is the single most critical limitation, making predictions for recent or future years highly unreliable.
 2.  **Static Prediction Environment:** The application predicts yields using historical average weather data for the selected year. While a function exists to call a live weather API (`get_temperature`), it is not used in the final prediction logic, which instead relies on the static `avg_temp` from the dataset.
-3.  **Limited Feature Set:** The models are trained on only three primary features: average rainfall, average temperature, and pesticide tonnage. This overlooks other critical factors influencing crop yield, such as soil quality, irrigation, and real-time weather events.
+3.  **Limited Feature Set (Historical):** Prior to the recent fix, the models were trained on only three primary features (rainfall, temperature, pesticide tonnage), with the crop type not encoded as a model feature — meaning predictions did not vary by crop. This has now been resolved by one‑hot encoding the crop column and retraining both models.
 4.  **Lack of Location Specificity:** The model predicts a single yield value for a crop across all of India for a given year. It does not account for the vast regional variations in climate, soil, and farming practices within the country.
-5.  **Manual Model Retraining:** The entire model training process is contained within a Jupyter notebook, requiring manual execution to update the models. There is no automated process to retrain on new data.
+5.  **Manual Model Retraining:** The entire model training process was previously contained within a Jupyter notebook. A standalone training script (`train_models_with_crop.py`) has been added to make retraining more reproducible, though full pipeline automation (scheduled runs, CI/CD) remains a future goal.
 6.  **Underutilized Engineered Features:** The `feature_engineering.ipynb` notebook creates several valuable interaction features (e.g., `temp_rainfall_interaction`), but these are not used in the `model_training.ipynb` notebook, representing a missed opportunity for performance improvement.
 7.  **Pipeline Inconsistencies:** There are several inconsistencies in the data pipeline, such as different filenames for processed data across notebooks, which makes the workflow fragile and difficult to reproduce.
 
@@ -122,8 +122,8 @@ Here are six strategic enhancements to address the identified limitations and mo
 It is recommended to implement these features in the following order to build upon previous steps:
 
 1.  **Automated Data Ingestion:** This is the highest priority, as all other enhancements depend on having current data.
-2.  **Automated Model Retraining:** Create the pipeline to process the new data and keep the model fresh.
-3.  **Improve Model & Features:** Update the pipeline to use the better features and models before adding more complexity.
+2.  **Automated Model Retraining:** Create the pipeline to process the new data and keep the model fresh. *(A basic standalone script now exists; full CI/CD automation is still pending.)*
+3.  **Improve Model & Features:** Update the pipeline to use the better features and models before adding more complexity. *(Crop encoding is now implemented; engineered interaction features from `feature_engineering.ipynb` are still not wired into training.)*
 4.  **Integrate Real-Time Weather:** With a solid model in place, connect it to live data for the front-end application.
 5.  **Add Geospatial Features:** Begin adding location-specific data to improve prediction granularity.
 6.  **Incorporate Satellite Imagery:** Finally, add the most advanced data sources to further refine accuracy.
