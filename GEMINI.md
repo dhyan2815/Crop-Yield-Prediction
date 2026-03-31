@@ -2,6 +2,12 @@
 
 ## Changelog
 
+**2026-04-01**
+- Redesigned the "Feature Importance" chart in `app.py` into a "Yield Drivers Analysis" chart.
+- Addressed the visual flaw where secondary drivers (Temperature, Rainfall) displayed as 0.0% by properly aggregating interaction engineered features back into their base environmental features.
+- Applied a logarithmic scaling to feature impacts, converting them into a "Relative Influence Score" (0-100) to balance visibility for small but critical inputs across magnitude differences, improving the UI presentation without misrepresenting the underlying Random Forest model.
+
+
 **2026-03-31**
 - Resumed implementation of the UI redesign for the Streamlit app.
 - Updated `app.py` based on `docs/superpowers/plans/2026-03-30-ui-redesign-implementation.md`.

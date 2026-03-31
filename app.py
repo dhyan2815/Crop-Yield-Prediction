@@ -214,37 +214,50 @@ def build_prediction_features(crop: str, year: int, pesticides: float,
 
 def get_feature_importance(rf_model, crop_columns: list) -> dict:
     """
-    Extract and normalize feature importance from Random Forest model.
-
-    Returns a dictionary of feature names to importance values.
+    Extract feature importance from Random Forest model and aggregate 
+    environmental variables to correctly reflect their true impact.
     """
-    # Get feature importances from RF model
     importances = rf_model.feature_importances_
     feature_names = rf_model.feature_names_in_
 
     # Create importance dictionary
     importance_dict = dict(zip(feature_names, importances))
 
-    # Group crop columns into single "Crop Type" importance
-    crop_importance = sum(
-        importance_dict.get(col, 0) for col in crop_columns
+    # Group crop columns
+    crop_importance = sum(importance_dict.get(col, 0) for col in crop_columns)
+
+    # Aggregate engineered features to correctly represent base drivers
+    rainfall_imp = (
+        importance_dict.get('average_rain_fall_mm_per_year', 0) + 
+        importance_dict.get('rainfall_deviation', 0) + 
+        importance_dict.get('rainfall_squared', 0) + 
+        importance_dict.get('temp_rainfall_interaction', 0) * 0.5 + 
+        importance_dict.get('pesticide_per_rainfall', 0) * 0.5
+    )
+    
+    temp_imp = (
+        importance_dict.get('avg_temp', 0) + 
+        importance_dict.get('temp_squared', 0) + 
+        importance_dict.get('temp_rainfall_interaction', 0) * 0.5
+    )
+    
+    pest_imp = (
+        importance_dict.get('pesticides_tonnes', 0) + 
+        importance_dict.get('pesticide_per_rainfall', 0) * 0.5
+    )
+    
+    year_imp = (
+        importance_dict.get('year_normalized', 0) + 
+        importance_dict.get('Year', 0)
     )
 
-    # Build display-friendly importance dict
     display_importance = {
-        'Crop Type': crop_importance,
-        'Rainfall': importance_dict.get('average_rain_fall_mm_per_year', 0),
-        'Temperature': importance_dict.get('avg_temp', 0),
-        'Pesticides': importance_dict.get('pesticides_tonnes', 0),
-        'Year': importance_dict.get('year_normalized', 0),
+        'Crop Type (Baseline)': crop_importance,
+        'Rainfall Variables': rainfall_imp,
+        'Temperature Variables': temp_imp,
+        'Pesticide Input': pest_imp,
+        'Temporal Trend (Year)': year_imp,
     }
-
-    # Normalize to percentages
-    total = sum(display_importance.values())
-    if total > 0:
-        display_importance = {
-            k: v / total for k, v in display_importance.items()
-        }
 
     return display_importance
 
@@ -356,55 +369,90 @@ def create_trend_plot(df: pd.DataFrame, crop: str):
 
 
 def create_feature_importance_chart(importance_dict: dict):
-    """Create horizontal bar chart showing feature importance."""
-    # Sort by importance
+    """Create a stylized horizontal bar chart with logarithmic scaling for feature importance."""
     features = list(importance_dict.keys())
-    importances = list(importance_dict.values())
+    raw_importances = list(importance_dict.values())
 
-    # Sort descending
-    sorted_pairs = sorted(zip(importances, features), reverse=True)
-    importances, features = zip(*sorted_pairs)
+    # Map to a logarithmic scale to compress extreme values (preventing 0.0 scores)
+    # Using log1p(x * 10000) safely scales values between ~0.0001 and 1.0 into a readable curve
+    log_importances = [np.log1p(x * 10000) for x in raw_importances]
+    max_log = max(log_importances) if max(log_importances) > 0 else 1
+    
+    # Scale to highly readable 0-100 Relative Impact Score
+    scores = [(x / max_log) * 100 for x in log_importances]
+
+    # Sort descending based on score
+    sorted_pairs = sorted(zip(scores, features), reverse=True)
+    scores, features = zip(*sorted_pairs)
 
     # Create figure
-    fig, ax = plt.subplots(figsize=(10, 5))
+    fig, ax = plt.subplots(figsize=(10, 6))
 
     # Set background
     fig.patch.set_facecolor('#FAFAFA')
     ax.set_facecolor('#FAFAFA')
 
-    # Color gradient (darker for higher importance)
-    colors = ['#2D5A27', '#388E3C', '#4CAF50', '#66BB6A', '#81C784']
+    # Color gradient based on rank (dark to light green)
+    colors = sns.color_palette("summer", len(features))
+    colors = list(reversed(colors))  # Highest gets the darkest/most prominent color
 
     # Create horizontal bars
-    bars = ax.barh(features, importances,
-                   color=colors[:len(features)],
-                   height=0.6,
-                   edgecolor='none')
+    bars = ax.barh(features, scores,
+                   color=colors,
+                   height=0.55,
+                   edgecolor='none',
+                   alpha=0.9)
 
-    # Add percentage labels
-    for bar, imp in zip(bars, importances):
+    # Add numeric score labels
+    for bar, score in zip(bars, scores):
         width = bar.get_width()
-        ax.text(width + 0.01,
-                bar.get_y() + bar.get_height() / 2,
-                f'{imp * 100:.1f}%',
-                va='center',
-                ha='left',
-                fontsize=10,
-                color='#1A1A2E')
+        label_text = f" {score:.1f} / 100"
+        
+        # Conditional formatting: if bar is long enough, put text inside
+        if width > 15:
+            ax.text(width - 2,
+                    bar.get_y() + bar.get_height() / 2,
+                    label_text,
+                    va='center',
+                    ha='right',
+                    fontsize=11,
+                    color='white',
+                    fontweight='bold')
+        else:
+            ax.text(width + 2,
+                    bar.get_y() + bar.get_height() / 2,
+                    label_text,
+                    va='center',
+                    ha='left',
+                    fontsize=11,
+                    color='#1A1A2E',
+                    fontweight='bold')
 
     # Styling
-    ax.set_xlim(0, max(importances) * 1.15)
+    ax.set_title('Relative Feature Influence Score\n(Log-Scaled for Balanced Driver Visibility)', 
+                 fontsize=14, fontweight='bold', color='#1A1A2E', pad=15)
+                 
+    ax.set_xlim(0, 110)
 
+    # Spine styling
     ax.spines['top'].set_visible(False)
     ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_color('#E5E7EB')
+    ax.spines['left'].set_visible(False) # Hide left spine for cleaner look
     ax.spines['bottom'].set_color('#E5E7EB')
 
-    ax.set_xlabel('Relative Importance', fontsize=12, color='#6B7280')
-    ax.tick_params(colors='#6B7280', labelsize=10)
+    ax.set_xlabel('Influence Score', fontsize=12, color='#6B7280', fontweight='medium')
+    ax.set_xticks([0, 25, 50, 75, 100])
+    ax.tick_params(axis='x', colors='#6B7280')
 
+    # Clean y-axis
+    ax.tick_params(axis='y', length=0, labelsize=11, colors='#1A1A2E')
+    
     # Invert y-axis so highest importance is at top
     ax.invert_yaxis()
+    
+    # Add subtle vertical grid lines
+    ax.grid(axis='x', linestyle='--', alpha=0.4, color='#9CA3AF')
+    ax.set_axisbelow(True)
 
     plt.tight_layout()
     return fig
@@ -554,7 +602,8 @@ def main():
 
                 # Feature Importance Chart
                 st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
-                st.header("💡 Feature Importance")
+                st.header("💡 Yield Drivers Analysis")
+                st.caption("Displays the relative impact of environmental and temporal factors on yield predictions. Scores are log-scaled to balance visibility across magnitude differences.")
                 importance_dict = get_feature_importance(rf_model, crop_columns)
                 importance_fig = create_feature_importance_chart(importance_dict)
                 st.pyplot(importance_fig)
