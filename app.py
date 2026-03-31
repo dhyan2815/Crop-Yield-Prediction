@@ -38,14 +38,8 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-    /* Main background */
-    .stApp {
-        background-color: #FAFAFA;
-    }
-
     /* Section headers */
     h2 {
-        color: #1A1A2E !important;
         font-weight: 600 !important;
         margin-top: 1.5rem !important;
         margin-bottom: 1rem !important;
@@ -53,35 +47,8 @@ st.markdown("""
     }
 
     h3 {
-        color: #1A1A2E !important;
         font-weight: 600 !important;
         font-size: 1rem !important;
-    }
-
-    /* Success message */
-    .stSuccess {
-        background-color: #E8F5E9 !important;
-        border-left: 4px solid #2D5A27 !important;
-    }
-
-    /* Info message */
-    .stInfo {
-        background-color: #E3F2FD !important;
-        border-left: 4px solid #1976D2 !important;
-    }
-
-    /* Warning banner */
-    .stWarning {
-        background-color: #FFF8E1 !important;
-        border-left: 4px solid #F59E0B !important;
-    }
-
-    /* Metric styling */
-    .stMetric {
-        background-color: #FFFFFF;
-        border-radius: 8px;
-        padding: 1rem;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
 
     /* Custom table styling */
@@ -93,25 +60,16 @@ st.markdown("""
     }
 
     .custom-table th {
-        background-color: #E8F5E9;
-        color: #1A1A2E;
+        background-color: #2D5A27;
+        color: #FFFFFF;
         font-weight: 600;
         padding: 12px 16px;
         text-align: left;
-        border-bottom: 2px solid #2D5A27;
     }
 
     .custom-table td {
         padding: 12px 16px;
-        border-bottom: 1px solid #E5E7EB;
-    }
-
-    .custom-table tr:nth-child(even) {
-        background-color: #FAFAFA;
-    }
-
-    .custom-table tr:hover {
-        background-color: #F5F5F5;
+        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
     }
 
     /* Number cells right-aligned */
@@ -123,19 +81,19 @@ st.markdown("""
 
     /* Best model highlight */
     .best-model {
-        background-color: #E8F5E9 !important;
         font-weight: 600;
         color: #2D5A27;
+        background-color: rgba(45, 90, 39, 0.1);
     }
 
     /* Footer styling */
     .footer {
         text-align: center;
-        color: #6B7280;
         font-size: 0.875rem;
         margin-top: 3rem;
         padding-top: 1rem;
-        border-top: 1px solid #E5E7EB;
+        border-top: 1px solid rgba(128, 128, 128, 0.2);
+        opacity: 0.7;
     }
 
     /* Spinner styling */
@@ -346,7 +304,6 @@ def create_trend_plot(df: pd.DataFrame, crop: str):
     # Set background color
     fig.patch.set_facecolor('#FAFAFA')
     ax.set_facecolor('#FAFAFA')
-
     # Create area chart with gradient effect
     ax.fill_between(years, yields,
                     alpha=0.3,
