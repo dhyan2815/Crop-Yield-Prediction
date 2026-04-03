@@ -11,9 +11,10 @@ FEATURES_DATA_PATH = "data/processed/Feature_Engineered_Crop_Yield_Data.csv"
 MODEL_DIR = "models"
 LR_MODEL_PATH = f"{MODEL_DIR}/linear_regression_model.pkl"
 RF_MODEL_PATH = f"{MODEL_DIR}/random_forest_model.pkl"
+CHAMPION_MODEL_PATH = f"{MODEL_DIR}/champion_model_v2.pkl"
 
 # Target variable
-TARGET_COLUMN = "kg_per_ha_yield"
+TARGET_COLUMN = "yield_kg_ha"  # standardized to kg/ha
 
 # Core numeric features (always used)
 CORE_FEATURES = [
@@ -22,7 +23,7 @@ CORE_FEATURES = [
     "pesticides_tonnes"
 ]
 
-# Engineered features (optional, can be toggled)
+# Engineered features (v1, legacy)
 ENGINEERED_FEATURES = [
     "temp_rainfall_interaction",
     "rainfall_deviation",
@@ -31,5 +32,18 @@ ENGINEERED_FEATURES = [
     "pesticide_per_rainfall"
 ]
 
-# All features for training
-ALL_FEATURES = CORE_FEATURES + ENGINEERED_FEATURES
+# v2 feature additions
+V2_FEATURES = [
+    "heat_stress_degreedays",
+    "drought_intensity",
+    "ndvi",
+    "ndvi_adjusted",
+    "soil_ph",
+    "soil_nitrogen",
+    "soil_organic_carbon",
+    "msp_trend",
+    "year_normalized",
+]
+
+# All features the champion model expects
+CHAMPION_FEATURES = CORE_FEATURES + V2_FEATURES + ENGINEERED_FEATURES

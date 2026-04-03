@@ -15,11 +15,21 @@ import time
 from scripts.config import (
     LR_MODEL_PATH,
     RF_MODEL_PATH,
+    CHAMPION_MODEL_PATH,
     FEATURES_DATA_PATH,
     CORE_FEATURES,
-    ENGINEERED_FEATURES
+    ENGINEERED_FEATURES,
+    CHAMPION_FEATURES,
 )
-from scripts.feature_engineer import calculate_interaction_features, add_year_based_features
+from scripts.feature_engineer_v2 import (
+    FEATURE_COLUMNS as V2_FEATURE_COLUMNS,
+    DEFAULT_NDVI,
+    DEFAULT_SOIL_PH,
+    DEFAULT_SOIL_NITROGEN,
+    DEFAULT_SOIL_ORGANIC_CARBON,
+    calculate_interaction_features,
+    add_year_based_features,
+)
 
 # =============================================================================
 # PAGE CONFIG
@@ -131,13 +141,22 @@ st.markdown("""
 @st.cache_resource
 def load_models():
     """Load trained ML models."""
+    models = {}
+    # Load champion model first
     try:
-        lr = joblib.load(LR_MODEL_PATH)
-        rf = joblib.load(RF_MODEL_PATH)
-        return lr, rf
-    except Exception as e:
-        st.error(f"Failed to load models: {e}")
-        return None, None
+        models['champion'] = joblib.load(CHAMPION_MODEL_PATH)
+    except Exception:
+        models['champion'] = None
+    # Load legacy models
+    try:
+        models['lr'] = joblib.load(LR_MODEL_PATH)
+    except Exception:
+        models['lr'] = None
+    try:
+        models['rf'] = joblib.load(RF_MODEL_PATH)
+    except Exception:
+        models['rf'] = None
+    return models
 
 
 @st.cache_data
@@ -188,26 +207,48 @@ def get_crop_columns(available_crops: list) -> list:
 
 
 def build_prediction_features(crop, year, pesticides, rainfall, temp, crop_columns):
-    """Build feature dict for model prediction with engineerd features."""
+    """
+    Build feature dict for model prediction using the v2 feature pipeline.
+    All v2 features are constructed here, using defaults for satellite/soil
+    when external APIs are unavailable.
+    """
+    # Base features
     features = {
         'average_rain_fall_mm_per_year': rainfall,
         'avg_temp': temp,
         'pesticides_tonnes': pesticides,
-        'temp_rainfall_interaction': temp * rainfall,
-        'rainfall_squared': rainfall ** 2,
-        'temp_squared': temp ** 2,
-        'pesticide_per_rainfall': pesticides / (rainfall + 1),
     }
-    # Rainfall deviation
-    features['rainfall_deviation'] = rainfall - 1083
+
+    # Interaction features (v1, retained)
+    features['temp_rainfall_interaction'] = temp * rainfall
+    features['rainfall_squared'] = rainfall ** 2
+    features['temp_squared'] = temp ** 2
+    features['pesticide_per_rainfall'] = pesticides / (rainfall + 1)
+    features['rainfall_deviation'] = rainfall - 1083  # Use dataset mean from training
 
     # Year normalization
     year_min, year_max = 1990, 2013
     if year_min != year_max:
         features['year_normalized'] = (year - year_min) / (year_max - year_min)
     else:
-        # Single year (inference) use 1.0
         features['year_normalized'] = 1.0
+
+    # v2 features - Climate stress indices
+    features['heat_stress_degreedays'] = float(max(0.0, temp - 35.0))
+    features['drought_intensity'] = float(max(0.0, 1.0 - (rainfall / 500.0)) if rainfall < 500 else 0.0)
+
+    # v2 features - Satellite & Soil (using trained defaults)
+    features['ndvi'] = float(DEFAULT_NDVI)
+    # ndvi_adjusted depends on rainfall and heat stress
+    ndvi_adj = DEFAULT_NDVI + (rainfall / 2000.0) - (features['heat_stress_degreedays'] / 10.0)
+    features['ndvi_adjusted'] = float(np.clip(ndvi_adj, 0, 1))
+    features['soil_ph'] = DEFAULT_SOIL_PH
+    features['soil_nitrogen'] = DEFAULT_SOIL_NITROGEN
+    features['soil_organic_carbon'] = DEFAULT_SOIL_ORGANIC_CARBON
+
+    # v2 features - Economic (MSP trend)
+    base_year = 1990
+    features['msp_trend'] = 1.0 + (year - base_year) * 0.03  # 3% annual growth rate
 
     # One-hot crop encoding
     for col in crop_columns:
@@ -219,9 +260,9 @@ def build_prediction_features(crop, year, pesticides, rainfall, temp, crop_colum
     return pd.DataFrame([features])
 
 
-def get_feature_importance(rf_model, crop_columns):
+def get_feature_importance(model, crop_columns):
     """Extract feature importance, grouping crop one-hot encodings into 'Crop Type'."""
-    importances = rf_model.feature_importances_
+    importances = model.feature_importances_
     names = rf_model.feature_names_in_
     imp_dict = dict(zip(names, importances))
 
@@ -404,9 +445,9 @@ def main():
     st.warning("Predictions are based on historical data analysis (1990–2013). Results should not be used for critical agricultural decisions without further validation.")
 
     # Load models
-    lr_model, rf_model = load_models()
-    if lr_model is None or rf_model is None:
-        st.error("Model files could not be loaded. Ensure training has been completed.")
+    models = load_models()
+    if models['champion'] is None:
+        st.error("Champion model not found. Please train the model first.")
         return
 
     # Load data & options
@@ -419,8 +460,14 @@ def main():
     dataset_stats = get_dataset_stats()
     crop_columns = get_crop_columns(available_crops)
 
-    # Feature extraction from model
-    feature_importance_dict = get_feature_importance(rf_model, crop_columns)
+    # Feature extraction from champion model
+    if models['champion']:
+        feature_importance_dict = get_feature_importance(models['champion'], crop_columns)
+    elif models['rf']:
+        feature_importance_dict = get_feature_importance(models['rf'], crop_columns)
+    else:
+        st.error("No trained model available for feature importance.")
+        return
 
     st.divider()
 
@@ -481,32 +528,45 @@ def main():
 
         with st.spinner("Analyzing..."):
             try:
-                # Build feature DataFrame
+                # Build feature DataFrame using v2 pipeline (includes all V2 features)
                 input_df = build_prediction_features(crop, year, pesticides, rainfall, temp, crop_columns)
 
-                # For v1 compatibility - add engineered features and align
-                df_v1 = input_df.copy()
-                df_v1 = calculate_interaction_features(df_v1)
-                df_v1 = add_year_based_features(df_v1)
+                # Align to full v2 feature set expected by champion model
+                # Note: input_df already contains all V2_FEATURE_COLUMNS plus crop one-hots
+                # but we ensure correct column order and presence
+                missing_cols = [c for c in V2_FEATURE_COLUMNS if c not in input_df.columns]
+                for col in missing_cols:
+                    input_df[col] = 0  # Should not happen, but safeguard
 
-                # Align to full v1 feature set
-                v1_feats = CORE_FEATURES + ENGINEERED_FEATURES + ['year_normalized'] + crop_columns
-                for col in v1_feats:
-                    if col not in df_v1.columns:
-                        df_v1[col] = 0
-                X_v1 = df_v1[v1_feats]
+                # Final feature order for champion model
+                X_champion = input_df[V2_FEATURE_COLUMNS + crop_columns]
 
-                # Predict
-                y_lr = float(lr_model.predict(X_v1)[0])
-                y_rf = float(rf_model.predict(X_v1)[0])
+                # Predict with champion model
+                y_champion = float(models['champion'].predict(X_champion)[0])
+
+                # Predict with legacy models for comparison (if available)
+                y_lr = None
+                y_rf = None
+                if models['lr'] and models['rf']:
+                    # Build v1 features (without v2 additions)
+                    df_v1 = input_df.copy()
+                    df_v1 = calculate_interaction_features(df_v1)
+                    df_v1 = add_year_based_features(df_v1)
+                    v1_feats = CORE_FEATURES + ENGINEERED_FEATURES + ['year_normalized'] + crop_columns
+                    for col in v1_feats:
+                        if col not in df_v1.columns:
+                            df_v1[col] = 0
+                    X_v1 = df_v1[v1_feats]
+                    y_lr = float(models['lr'].predict(X_v1)[0])
+                    y_rf = float(models['rf'].predict(X_v1)[0])
 
                 # Results
                 st.success("Prediction Complete")
 
                 # Display table
-                display_results_table(y_rf, y_rf)  # We use y_rf as champion for now
+                display_results_table(y_champion, y_rf, y_lr)
 
-                # Charts - two columns
+                # Charts - now two columns (historical trend, feature importance)
                 col_a, col_b = st.columns(2)
                 with col_a:
                     st.subheader("Historical Trend")
@@ -517,6 +577,8 @@ def main():
 
             except Exception as e:
                 st.error(f"Prediction failed: {e}")
+                import traceback
+                st.code(traceback.format_exc())
 
     # ==========================================================================
     # FOOTER

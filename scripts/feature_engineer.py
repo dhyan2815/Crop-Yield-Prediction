@@ -1,73 +1,51 @@
-# scripts/feature_engineer.py
-"""Feature engineering module for crop yield prediction."""
+"""
+DEPRECATED: Backward compatibility wrapper.
+Use feature_engineer_v2.engineer_features_v2() for all new code.
+"""
 
+import warnings
 import pandas as pd
-import numpy as np
-from .config import PROCESSED_DATA_PATH, FEATURES_DATA_PATH, ENGINEERED_FEATURES
+from .config import PROCESSED_DATA_PATH, FEATURES_DATA_PATH
+
+warnings.warn(
+    "feature_engineer is deprecated; use feature_engineer_v2.engineer_features_v2 instead",
+    DeprecationWarning,
+    stacklevel=2
+)
 
 
 def calculate_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Calculate interaction features between temperature and rainfall."""
-    # Temperature-Rainfall interaction
-    df['temp_rainfall_interaction'] = df['avg_temp'] * df['average_rain_fall_mm_per_year']
-
-    # Rainfall deviation from mean
-    mean_rainfall = df['average_rain_fall_mm_per_year'].mean()
-    df['rainfall_deviation'] = df['average_rain_fall_mm_per_year'] - mean_rainfall
-
-    # Squared terms for non-linear relationships
-    df['rainfall_squared'] = df['average_rain_fall_mm_per_year'] ** 2
-    df['temp_squared'] = df['avg_temp'] ** 2
-
-    # Ratio features
-    df['pesticide_per_rainfall'] = df['pesticides_tonnes'] / (df['average_rain_fall_mm_per_year'] + 1)
-
-    return df
+    """Legacy wrapper - forwards to v2 pipeline."""
+    from .feature_engineer_v2 import calculate_interaction_features as v2_fn
+    return v2_fn(df.copy())
 
 
 def add_year_based_features(df: pd.DataFrame) -> pd.DataFrame:
-    """Add features based on year (e.g., trend, season if applicable)."""
-    # Year as numeric feature for trend capture
-    year_min = df['Year'].min()
-    year_max = df['Year'].max()
-    
-    if year_max != year_min:
-        df['year_normalized'] = (df['Year'] - year_min) / (year_max - year_min)
-    else:
-        # If single year provided (inference), use 1.0 as latest trend or 0 as default
-        df['year_normalized'] = 1.0
-        
-    return df
+    """Legacy wrapper - forwards to v2 pipeline."""
+    from .feature_engineer_v2 import add_year_based_features as v2_fn
+    return v2_fn(df.copy())
 
 
 def engineer_features(input_path: str = PROCESSED_DATA_PATH,
-                    output_path: str = FEATURES_DATA_PATH) -> pd.DataFrame:
+                      output_path: str = FEATURES_DATA_PATH) -> pd.DataFrame:
     """
-    Full feature engineering pipeline.
+    Legacy wrapper - forwards to v2 pipeline.
+    Maintains compatibility with old code that expects this interface.
+    """
+    from .feature_engineer_v2 import engineer_features_v2
 
-    Loads cleaned data, adds engineered features, and saves to output_path.
-    """
-    # Load cleaned data
     df = pd.read_csv(input_path)
     df.columns = df.columns.str.strip()
 
-    # Apply feature engineering
-    df = calculate_interaction_features(df)
-    df = add_year_based_features(df)
+    result = engineer_features_v2(df)
 
-    # Save to features path
-    df.to_csv(output_path, index=False)
+    if output_path:
+        result.to_csv(output_path, index=False)
 
-    return df
+    return result
 
 
 def get_feature_names() -> list:
     """Return list of all engineered feature names."""
-    return ENGINEERED_FEATURES + ['year_normalized']
-
-
-if __name__ == "__main__":
-    print("Running feature engineering pipeline...")
-    df = engineer_features()
-    print(f"Engineered features saved. Shape: {df.shape}")
-    print(f"New columns: {get_feature_names()}")
+    from .feature_engineer_v2 import FEATURE_COLUMNS
+    return FEATURE_COLUMNS
