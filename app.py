@@ -74,94 +74,283 @@ st.set_page_config(
 )
 
 # =============================================================================
-# CUSTOM CSS - Modern Minimal / Earthy Green Theme
+# CUSTOM CSS - Modern Minimal / Auto-Detecting Theme (Light/Dark)
 # =============================================================================
 
 st.markdown("""
 <style>
-    /* Background */
-    .stApp {
-        background: linear-gradient(180deg, #f8faf7 0%, #FAFAFA 100%);
-    }
+/* ================================================
+   THEME SYSTEM - Auto Light/Dark Mode Detection
+   ================================================ */
+:root {
+    /* Light theme (default) */
+    --bg-primary: #FAFAFA;
+    --bg-secondary: #f8faf7;
+    --text-primary: #1A1A2E;
+    --text-secondary: #4B5563;
+    --card-bg: #ffffff;
+    --card-border: #E5E7EB;
+    --accent-green: #2D5A27;
+    --accent-green-light: #E8F5E9;
+    --accent-blue: #1976D2;
+    --accent-blue-light: #E3F2FD;
+    --accent-orange: #F59E0B;
+    --accent-orange-light: #FFF8E1;
+    --table-header-bg: #E8F5E9;
+    --table-row-even: #FAFAFA;
+    --table-row-hover: #F0F7EF;
+    --link-color: #2D5A27;
+    --link-hover: #1B4332;
+    --button-primary: #2D5A27;
+    --button-primary-hover: #1B4332;
+    --button-secondary: #1976D2;
+    --error-bg: #450a0a;
+    --error-border: #dc2626;
+    --error-text: #fca5a5;
+}
 
-    /* Headers */
-    h1 { color: #1A1A2E !important; font-weight: 700 !important; margin-bottom: 0.5rem !important; }
-    h2 { color: #1A1A2E !important; font-weight: 600 !important; margin-top: 1.5rem !important; }
-    h3 { color: #1A1A2E !important; font-weight: 600 !important; }
+/* Dark theme overrides - auto detected from system/Streamlight config */
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg-primary: #0f172a;
+        --bg-secondary: #1a2332;
+        --text-primary: #f1f5f9;
+        --text-secondary: #cbd5e1;
+        --card-bg: #1e293b;
+        --card-border: #334155;
+        --accent-green: #4ade80;
+        --accent-green-light: #14532d;
+        --accent-blue: #60a5fa;
+        --accent-blue-light: #1e3a5f;
+        --accent-orange: #fbbf24;
+        --accent-orange-light: #451a03;
+        --table-header-bg: #14532d;
+        --table-row-even: #0f172a;
+        --table-row-hover: #1a2332;
+        --link-color: #4ade80;
+        --link-hover: #22c55e;
+        --button-primary: #4ade80;
+        --button-primary-hover: #22c55e;
+        --button-secondary: #60a5fa;
+        --error-bg: #450a0a;
+        --error-border: #dc2626;
+        --error-text: #fca5a5;
+    }
+}
 
-    /* Success */
-    .stSuccess {
-        background-color: #E8F5E9 !important;
-        border-left: 4px solid #2D5A27 !important;
-        border-radius: 0;
-    }
+/* Apply global background */
+.stApp {
+    background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+    color: var(--text-primary);
+}
 
-    /* Info */
-    .stInfo {
-        background-color: #E3F2FD !important;
-        border-left: 4px solid #1976D2 !important;
-    }
+/* Headers - always high contrast */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+}
 
-    /* Warning */
-    .stWarning {
-        background-color: #FFF8E1 !important;
-        border-left: 4px solid #F59E0B !important;
-    }
+/* Text content */
+p, span, div, label {
+    color: var(--text-primary) !important;
+}
 
-    /* Metrics - Modern Cards */
-    div[data-testid="stMetric"] {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 1.5rem;
-        border: 1px solid #E5E7EB;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
-    }
+/* Streamlit alert components */
+.stSuccess {
+    background-color: var(--accent-green-light) !important;
+    border-left: 4px solid var(--accent-green) !important;
+    color: var(--text-primary) !important;
+    border-radius: 0;
+}
 
-    /* Tables */
-    .data-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin: 1rem 0;
-        font-size: 0.95rem;
-        border-radius: 8px;
-        overflow: hidden;
-    }
-    .data-table th {
-        background-color: #E8F5E9;
-        color: #2D5A27;
-        font-weight: 600;
-        padding: 12px 16px;
-        text-align: left;
-        border-bottom: 2px solid #2D5A27;
-    }
-    .data-table td {
-        padding: 12px 16px;
-        border-bottom: 1px solid #E5E7EB;
-    }
-    .data-table tr:nth-child(even) { background-color: #FAFAFA; }
-    .data-table tr:hover { background-color: #F0F7EF; }
+.stInfo {
+    background-color: var(--accent-blue-light) !important;
+    border-left: 4px solid var(--accent-blue) !important;
+    color: var(--text-primary) !important;
+}
 
-    /* Highlight row */
-    .highlight-row {
-        background-color: #E8F5E9 !important;
-    }
+.stWarning {
+    background-color: var(--accent-orange-light) !important;
+    border-left: 4px solid var(--accent-orange) !important;
+    color: var(--text-primary) !important;
+}
 
-    /* Footer */
-    .app-footer {
-        text-align: center;
-        color: #6B7280;
-        font-size: 0.875rem;
-        margin-top: 3rem;
-        padding-top: 1.5rem;
-        border-top: 1px solid #E5E7EB;
-    }
+.stError {
+    background-color: var(--error-bg) !important;
+    border-left: 4px solid var(--error-border) !important;
+    color: var(--error-text) !important;
+}
 
-    /* Section dividers */
-    .section-divider {
-        border: none;
-        border-top: 1px solid #E5E7EB;
-        margin: 2rem 0;
-    }
+/* Metrics - Modern Cards */
+div[data-testid="stMetric"] {
+    background-color: var(--card-bg) !important;
+    border-radius: 12px;
+    padding: 1.5rem;
+    border: 1px solid var(--card-border);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    color: var(--text-primary) !important;
+}
+
+/* Metric label and value colors */
+div[data-testid="stMetricValue"] {
+    color: var(--text-primary) !important;
+    font-weight: 700 !important;
+}
+
+div[data-testid="stMetricLabel"] {
+    color: var(--text-secondary) !important;
+}
+
+/* Tables */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 1rem 0;
+    font-size: 0.95rem;
+    border-radius: 8px;
+    overflow: hidden;
+    color: var(--text-primary);
+}
+.data-table th {
+    background-color: var(--table-header-bg);
+    color: var(--accent-green) !important;
+    font-weight: 600;
+    padding: 12px 16px;
+    text-align: left;
+    border-bottom: 2px solid var(--accent-green);
+}
+.data-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--card-border);
+    color: var(--text-primary);
+}
+.data-table tr:nth-child(even) {
+    background-color: var(--table-row-even);
+}
+.data-table tr:hover {
+    background-color: var(--table-row-hover);
+}
+
+/* Highlight row */
+.highlight-row {
+    background-color: var(--accent-green-light) !important;
+}
+.highlight-row td {
+    color: var(--text-primary) !important;
+    font-weight: 600 !important;
+}
+
+/* Data Source Links */
+a[href] {
+    color: var(--link-color) !important;
+    text-decoration: none;
+    font-weight: 500;
+}
+a[href]:hover {
+    text-decoration: underline;
+    color: var(--link-hover) !important;
+}
+
+/* Footer */
+.app-footer {
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin-top: 3rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--card-border);
+}
+
+/* Section dividers */
+hr {
+    border: none;
+    border-top: 1px solid var(--card-border);
+    margin: 2rem 0;
+}
+
+/* Inputs */
+input, textarea, select, div[role="combobox"] input {
+    color: var(--text-primary) !important;
+    background-color: var(--card-bg) !important;
+    border-color: var(--card-border) !important;
+}
+
+/* Buttons */
+button {
+    background-color: var(--button-primary) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+button:hover {
+    background-color: var(--button-primary-hover) !important;
+}
+
+/* Streamlit button specific */
+.stButton button {
+    background-color: var(--button-primary) !important;
+    color: #ffffff !important;
+    border-radius: 0.5rem !important;
+    font-weight: 500 !important;
+    padding: 0.5rem 1rem !important;
+}
+.stButton button:hover {
+    background-color: var(--button-primary-hover) !important;
+}
+
+/* Secondary button variant */
+.stButton button[kind="secondary"] {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--card-border) !important;
+}
+
+/* Download button */
+.stDownloadButton button {
+    background-color: var(--button-secondary) !important;
+    color: #ffffff !important;
+}
+.stDownloadButton button:hover {
+    background-color: var(--accent-green) !important;
+}
+
+/* Selectbox / Multiselect */
+[data-baseweb="select"] {
+    background-color: var(--card-bg) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--card-border) !important;
+}
+
+/* Number input */
+[data-baseweb="input"] input {
+    color: var(--text-primary) !important;
+    background-color: var(--card-bg) !important;
+    caret-color: var(--accent-green) !important;
+}
+
+/* Slider */
+[data-baseweb="slider"] {
+    background-color: var(--card-border) !important;
+}
+
+/* Checkbox */
+[data-baseweb="checkbox"] {
+    color: var(--text-primary) !important;
+}
+[data-baseweb="checkbox"] input:checked + div {
+    background-color: var(--accent-green) !important;
+}
+
+/* Expander */
+details {
+    background-color: var(--card-bg) !important;
+    border: 1px solid var(--card-border) !important;
+}
+details summary {
+    color: var(--text-primary) !important;
+    font-weight: 500 !important;
+}
 </style>
 """, unsafe_allow_html=True)
 
