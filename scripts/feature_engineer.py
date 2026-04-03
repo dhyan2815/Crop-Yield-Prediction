@@ -28,7 +28,15 @@ def calculate_interaction_features(df: pd.DataFrame) -> pd.DataFrame:
 def add_year_based_features(df: pd.DataFrame) -> pd.DataFrame:
     """Add features based on year (e.g., trend, season if applicable)."""
     # Year as numeric feature for trend capture
-    df['year_normalized'] = (df['Year'] - df['Year'].min()) / (df['Year'].max() - df['Year'].min())
+    year_min = df['Year'].min()
+    year_max = df['Year'].max()
+    
+    if year_max != year_min:
+        df['year_normalized'] = (df['Year'] - year_min) / (year_max - year_min)
+    else:
+        # If single year provided (inference), use 1.0 as latest trend or 0 as default
+        df['year_normalized'] = 1.0
+        
     return df
 
 

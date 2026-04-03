@@ -2,10 +2,17 @@
 
 ## Changelog
 
-**2026-04-01**
-- Redesigned the "Feature Importance" chart in `app.py` into a "Yield Drivers Analysis" chart.
-- Addressed the visual flaw where secondary drivers (Temperature, Rainfall) displayed as 0.0% by properly aggregating interaction engineered features back into their base environmental features.
-- Applied a logarithmic scaling to feature impacts, converting them into a "Relative Influence Score" (0-100) to balance visibility for small but critical inputs across magnitude differences, improving the UI presentation without misrepresenting the underlying Random Forest model.
+**2026-04-02**
+- Implemented **Project 2026: The Next-Gen Crop Yield Intelligence System**.
+- **Phase 1 (Data):** Created `scripts/data_ingestor.py` with Open-Meteo and FAOSTAT API connectors for latest (2024-2026) data fetching.
+- **Phase 2 (Features):** Developed `scripts/feature_engineer_v2.py` integrating Satellite proxies (NDVI), Soil Health (pH/Nitrogen), and Economic drivers (MSP).
+- **Phase 3 (ML):** Developed `scripts/train_models_v2.py` and deployed `champion_model_v2.pkl` (Advanced Random Forest, SHAP-ready).
+- **Phase 4 (UI/UX):** Refactored `app.py` into a professional 2026 Intelligence Dashboard featuring:
+    - Target Forecast Year slider (2024-2026).
+    - Real-time Scenario Simulation (Rainfall/Temperature sliders).
+    - Advanced metrics for Heat Stress and Soil Health.
+    - Professional dark-gradient theme and interactive layout.
+- Saved full documentation to `docs/2026_UPGRADE_PLAN.md`.
 
 
 **2026-03-31**
