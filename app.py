@@ -10,8 +10,8 @@ import numpy as np
 import joblib
 import matplotlib.pyplot as plt
 import seaborn as sns
+import time
 
-# Import from modular scripts
 from scripts.config import (
     LR_MODEL_PATH,
     RF_MODEL_PATH,
@@ -19,101 +19,122 @@ from scripts.config import (
     CORE_FEATURES,
     ENGINEERED_FEATURES
 )
-from scripts.feature_engineer import get_feature_names
+from scripts.feature_engineer import calculate_interaction_features, add_year_based_features
 
 # =============================================================================
-# CONFIGURATION AND SETUP
+# PAGE CONFIG
 # =============================================================================
 
 st.set_page_config(
     page_title="Yield Metrics",
     page_icon="🌾",
-    layout="centered",
-    initial_sidebar_state="collapsed"
+    layout="wide",
+    initial_sidebar_state="expanded"
 )
 
 # =============================================================================
-# CUSTOM STYLING
+# CUSTOM CSS - Modern Minimal / Earthy Green Theme
 # =============================================================================
 
 st.markdown("""
 <style>
-    /* Section headers */
-    h2 {
-        font-weight: 600 !important;
-        margin-top: 1.5rem !important;
-        margin-bottom: 1rem !important;
-        font-size: 1.25rem !important;
+    /* Background */
+    .stApp {
+        background: linear-gradient(180deg, #f8faf7 0%, #FAFAFA 100%);
     }
 
-    h3 {
-        font-weight: 600 !important;
-        font-size: 1rem !important;
+    /* Headers */
+    h1 { color: #1A1A2E !important; font-weight: 700 !important; margin-bottom: 0.5rem !important; }
+    h2 { color: #1A1A2E !important; font-weight: 600 !important; margin-top: 1.5rem !important; }
+    h3 { color: #1A1A2E !important; font-weight: 600 !important; }
+
+    /* Success */
+    .stSuccess {
+        background-color: #E8F5E9 !important;
+        border-left: 4px solid #2D5A27 !important;
+        border-radius: 0;
     }
 
-    /* Custom table styling */
-    .custom-table {
+    /* Info */
+    .stInfo {
+        background-color: #E3F2FD !important;
+        border-left: 4px solid #1976D2 !important;
+    }
+
+    /* Warning */
+    .stWarning {
+        background-color: #FFF8E1 !important;
+        border-left: 4px solid #F59E0B !important;
+    }
+
+    /* Metrics - Modern Cards */
+    div[data-testid="stMetric"] {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 1.5rem;
+        border: 1px solid #E5E7EB;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    /* Tables */
+    .data-table {
         width: 100%;
         border-collapse: collapse;
         margin: 1rem 0;
         font-size: 0.95rem;
+        border-radius: 8px;
+        overflow: hidden;
     }
-
-    .custom-table th {
-        background-color: #2D5A27;
-        color: #FFFFFF;
+    .data-table th {
+        background-color: #E8F5E9;
+        color: #2D5A27;
         font-weight: 600;
         padding: 12px 16px;
         text-align: left;
+        border-bottom: 2px solid #2D5A27;
     }
-
-    .custom-table td {
+    .data-table td {
         padding: 12px 16px;
-        border-bottom: 1px solid rgba(128, 128, 128, 0.2);
+        border-bottom: 1px solid #E5E7EB;
+    }
+    .data-table tr:nth-child(even) { background-color: #FAFAFA; }
+    .data-table tr:hover { background-color: #F0F7EF; }
+
+    /* Highlight row */
+    .highlight-row {
+        background-color: #E8F5E9 !important;
     }
 
-    /* Number cells right-aligned */
-    .custom-table td:nth-child(2),
-    .custom-table td:nth-child(3) {
-        text-align: right;
-        font-family: 'SF Mono', Monaco, 'Courier New', monospace;
-    }
-
-    /* Best model highlight */
-    .best-model {
-        font-weight: 600;
-        color: #2D5A27;
-        background-color: rgba(45, 90, 39, 0.1);
-    }
-
-    /* Footer styling */
-    .footer {
+    /* Footer */
+    .app-footer {
         text-align: center;
+        color: #6B7280;
         font-size: 0.875rem;
         margin-top: 3rem;
-        padding-top: 1rem;
-        border-top: 1px solid rgba(128, 128, 128, 0.2);
-        opacity: 0.7;
+        padding-top: 1.5rem;
+        border-top: 1px solid #E5E7EB;
     }
 
-    /* Spinner styling */
-    .stSpinner > div {
-        border-color: #2D5A27 !important;
+    /* Section dividers */
+    .section-divider {
+        border: none;
+        border-top: 1px solid #E5E7EB;
+        margin: 2rem 0;
     }
 </style>
 """, unsafe_allow_html=True)
 
 # =============================================================================
-# MODEL LOADING (Cached)
+# MODEL LOADING
 # =============================================================================
 
 @st.cache_resource
 def load_models():
     """Load trained ML models."""
     try:
-        lr_model = joblib.load(LR_MODEL_PATH)
-        rf_model = joblib.load(RF_MODEL_PATH)
-        return lr_model, rf_model
+        lr = joblib.load(LR_MODEL_PATH)
+        rf = joblib.load(RF_MODEL_PATH)
+        return lr, rf
     except Exception as e:
         st.error(f"Failed to load models: {e}")
         return None, None
@@ -125,7 +146,6 @@ def load_features_data():
     try:
         df = pd.read_csv(FEATURES_DATA_PATH)
         df.columns = df.columns.str.strip()
-        # Clean crop names
         if 'Item' in df.columns:
             df['Item'] = df['Item'].str.strip().str.replace('"', '', regex=False)
         return df
@@ -136,25 +156,22 @@ def load_features_data():
 
 @st.cache_data
 def get_available_options():
-    """Get available crops and year range from data."""
+    """Get available crops and year range."""
     df = load_features_data()
     if df.empty:
         return [], 1990, 2013
-
     crops = sorted(df['Item'].unique())
     min_year = int(df['Year'].min())
     max_year = int(df['Year'].max())
-
     return crops, min_year, max_year
 
 
 @st.cache_data
 def get_dataset_stats():
-    """Compute pesticide statistics from data."""
+    """Compute pesticide statistics."""
     df = load_features_data()
     if df.empty:
-        return {'pesticide_min': 0.0, 'pesticide_max': 100000.0, 'pesticide_median': 5000.0}
-
+        return {'pesticide_min': 0, 'pesticide_max': 100000, 'pesticide_median': 5000}
     return {
         'pesticide_min': float(df['pesticides_tonnes'].min()),
         'pesticide_max': float(df['pesticides_tonnes'].max()),
@@ -167,459 +184,348 @@ def get_dataset_stats():
 # =============================================================================
 
 def get_crop_columns(available_crops: list) -> list:
-    """Generate one-hot encoded column names for crops."""
-    return [f'Item_{crop}' for crop in available_crops]
+    return [f'Item_{c}' for c in available_crops]
 
 
-def build_prediction_features(crop: str, year: int, pesticides: float,
-                             rainfall: float, temp: float,
-                             crop_columns: list) -> pd.DataFrame:
-    """Build feature DataFrame for model prediction."""
-    feature_dict = {
+def build_prediction_features(crop, year, pesticides, rainfall, temp, crop_columns):
+    """Build feature dict for model prediction with engineerd features."""
+    features = {
         'average_rain_fall_mm_per_year': rainfall,
         'avg_temp': temp,
         'pesticides_tonnes': pesticides,
-    }
-
-    # Add engineered features (using values from input)
-    feature_dict.update({
         'temp_rainfall_interaction': temp * rainfall,
-        'rainfall_deviation': 0,  # Will be computed based on training mean
         'rainfall_squared': rainfall ** 2,
         'temp_squared': temp ** 2,
         'pesticide_per_rainfall': pesticides / (rainfall + 1),
-        'year_normalized': 0  # Will be computed based on year range
-    })
+    }
+    # Rainfall deviation
+    features['rainfall_deviation'] = rainfall - 1083
 
-    # Compute rainfall_deviation based on approximate mean (from training)
-    approx_mean_rainfall = 1083  # Approximate mean from data
-    feature_dict['rainfall_deviation'] = rainfall - approx_mean_rainfall
-
-    # Compute year_normalized based on dataset range (1990-2013)
+    # Year normalization
     year_min, year_max = 1990, 2013
     if year_min != year_max:
-        feature_dict['year_normalized'] = (year - year_min) / (year_max - year_min)
+        features['year_normalized'] = (year - year_min) / (year_max - year_min)
     else:
-        feature_dict['year_normalized'] = 0
+        # Single year (inference) use 1.0
+        features['year_normalized'] = 1.0
 
-    # One-hot encode crop
+    # One-hot crop encoding
     for col in crop_columns:
-        feature_dict[col] = 0
-    selected_col = f'Item_{crop}'
-    if selected_col in feature_dict:
-        feature_dict[selected_col] = 1
+        features[col] = 0
+    sel = f'Item_{crop}'
+    if sel in features:
+        features[sel] = 1
 
-    return pd.DataFrame([feature_dict])
+    return pd.DataFrame([features])
 
 
-def get_feature_importance(rf_model, crop_columns: list) -> dict:
-    """
-    Extract feature importance from Random Forest model and aggregate 
-    environmental variables to correctly reflect their true impact.
-    """
+def get_feature_importance(rf_model, crop_columns):
+    """Extract feature importance, grouping crop one-hot encodings into 'Crop Type'."""
     importances = rf_model.feature_importances_
-    feature_names = rf_model.feature_names_in_
-
-    # Create importance dictionary
-    importance_dict = dict(zip(feature_names, importances))
+    names = rf_model.feature_names_in_
+    imp_dict = dict(zip(names, importances))
 
     # Group crop columns
-    crop_importance = sum(importance_dict.get(col, 0) for col in crop_columns)
+    crop_imp = sum(imp_dict.get(c, 0) for c in crop_columns)
 
-    # Aggregate engineered features to correctly represent base drivers
-    rainfall_imp = (
-        importance_dict.get('average_rain_fall_mm_per_year', 0) + 
-        importance_dict.get('rainfall_deviation', 0) + 
-        importance_dict.get('rainfall_squared', 0) + 
-        importance_dict.get('temp_rainfall_interaction', 0) * 0.5 + 
-        importance_dict.get('pesticide_per_rainfall', 0) * 0.5
-    )
-    
-    temp_imp = (
-        importance_dict.get('avg_temp', 0) + 
-        importance_dict.get('temp_squared', 0) + 
-        importance_dict.get('temp_rainfall_interaction', 0) * 0.5
-    )
-    
-    pest_imp = (
-        importance_dict.get('pesticides_tonnes', 0) + 
-        importance_dict.get('pesticide_per_rainfall', 0) * 0.5
-    )
-    
-    year_imp = (
-        importance_dict.get('year_normalized', 0) + 
-        importance_dict.get('Year', 0)
-    )
-
-    display_importance = {
-        'Crop Type (Baseline)': crop_importance,
-        'Rainfall Variables': rainfall_imp,
-        'Temperature Variables': temp_imp,
-        'Pesticide Input': pest_imp,
-        'Temporal Trend (Year)': year_imp,
+    display = {
+        'Crop Type': crop_imp,
+        'Rainfall': imp_dict.get('average_rain_fall_mm_per_year', 0),
+        'Temperature': imp_dict.get('avg_temp', 0),
+        'Pesticides': imp_dict.get('pesticides_tonnes', 0),
+        'Year': imp_dict.get('year_normalized', 0),
     }
+    total = sum(display.values())
+    if total > 0:
+        display = {k: v / total for k, v in display.items()}
+    return display
 
-    return display_importance
 
+def display_results_table(y_v2, y_rf, y_lr=None):
+    """Display predictions in a clean table."""
+    rows = []
+    rows.append(('Champion Forecast (v2)', f'{y_v2:,.0f}'))
+    if y_lr is not None:
+        rows.append(('Linear Regression (v1)', f'{y_lr:,.0f}'))
+    if y_rf is not None:
+        rows.append(('Random Forest (v1)', f'{y_rf:,.0f}'))
 
-def display_prediction_table(y_lr: float, y_rf: float):
-    """
-    Display prediction results in a clean, styled table.
+    table_rows = ''
+    for model_name, value in rows:
+        is_first = (model_name == rows[0][0])
+        row_class = ' class="highlight-row"' if is_first else ''
+        table_rows += f'<tr{row_class}><td>{model_name}</td><td>{value} kg/ha</td></tr>\n'
 
-    Shows both model predictions with percentage comparison to RF.
-    """
-    # Calculate max value for percentage comparison
-    max_pred = max(y_lr, y_rf)
-    lr_pct = (y_lr / max_pred) * 100 if max_pred > 0 else 0
-    rf_pct = (y_rf / max_pred) * 100 if max_pred > 0 else 0
-
-    # Build HTML table
-    table_html = """
-    <table class="custom-table">
-        <thead>
-            <tr>
-                <th>Model</th>
-                <th>Prediction (kg/ha)</th>
-                <th>Relative Score</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr>
-                <td>Linear Regression</td>
-                <td>{:.0f}</td>
-                <td>{:.1f}%</td>
-            </tr>
-            <tr class="best-model">
-                <td>Random Forest</td>
-                <td>{:.0f}</td>
-                <td>{:.1f}%</td>
-            </tr>
-        </tbody>
+    table_html = f"""
+    <table class="data-table">
+        <thead><tr><th>Model</th><th>Prediction</th></tr></thead>
+        <tbody>{table_rows}</tbody>
     </table>
-    """.format(y_lr, lr_pct, y_rf, rf_pct)
-
+    """
     st.markdown(table_html, unsafe_allow_html=True)
 
 
-def create_trend_plot(df: pd.DataFrame, crop: str):
-    """Create area chart showing historical yield trend for a crop."""
-    # Filter for selected crop
+# =============================================================================
+# CHART FUNCTIONS
+# =============================================================================
+
+def create_area_chart(df, crop):
+    """Modern area chart with green gradient fill for historical yield."""
     crop_df = df[df['Item'] == crop].copy()
     avg_yield = crop_df.groupby('Year')['kg_per_ha_yield'].mean().reset_index()
-
-    # Prepare data
     years = avg_yield['Year'].values
     yields = avg_yield['kg_per_ha_yield'].values
 
-    # Create figure with modern styling
-    fig, ax = plt.subplots(figsize=(12, 6))
+    fig, ax = plt.subplots(figsize=(11, 5.5))
 
-    # Set background color
-    fig.patch.set_facecolor('#FAFAFA')
-    ax.set_facecolor('#FAFAFA')
-    # Create area chart with gradient effect
-    ax.fill_between(years, yields,
-                    alpha=0.3,
-                    color='#2D5A27',
-                    label='Yield Area')
+    # Backgrounds
+    fig.patch.set_facecolor('transparent')
+    ax.set_facecolor('transparent')
 
-    # Add line on top
+    # Gradient area fill
+    ax.fill_between(
+        years, yields,
+        alpha=0.35,
+        color='#2D5A27',
+    )
+
+    # Main line
     ax.plot(years, yields,
             color='#2D5A27',
-            linewidth=2.5,
+            linewidth=3,
             marker='o',
             markersize=6,
             markerfacecolor='#FFFFFF',
             markeredgecolor='#2D5A27',
             markeredgewidth=2,
-            label='Yield')
+            zorder=3)
 
-    # Styling
-    ax.set_title(f'{crop} - Historical Yield Trend in India',
-                 fontsize=14,
-                 fontweight='bold',
-                 color='#1A1A2E',
-                 pad=20)
+    # Titles and labels
+    ax.set_title(
+        f'{crop} — Yield Trajectory Over Time',
+        fontsize=15,
+        fontweight='700',
+        color='#1A1A2E',
+        pad=18,
+        loc='left'
+    )
+    ax.set_xlabel('Year', fontsize=12, color='#6B7280', fontweight='500')
+    ax.set_ylabel('Average Yield (kg/ha)', fontsize=12, color='#6B7280', fontweight='500')
 
-    ax.set_xlabel('Year', fontsize=12, color='#6B7280')
-    ax.set_ylabel('Average Yield (kg/ha)', fontsize=12, color='#6B7280')
-
-    # Grid styling
-    ax.grid(True, alpha=0.3, linestyle='--', color='#E5E7EB')
+    # Grid
+    ax.grid(True, alpha=0.25, linestyle='--', linewidth=0.8, color='#D1D5DB')
     ax.set_axisbelow(True)
 
-    # Spine styling
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_color('#E5E7EB')
-    ax.spines['bottom'].set_color('#E5E7EB')
+    # Spines
+    for spine in ['top', 'right']:
+        ax.spines[spine].set_visible(False)
+    for spine in ['left', 'bottom']:
+        ax.spines[spine].set_color('#E5E7EB')
+        ax.spines[spine].set_linewidth(1)
 
-    # Tick styling
-    ax.tick_params(colors='#6B7280')
+    # Ticks
+    ax.tick_params(colors='#6B7280', labelsize=11)
     plt.xticks(rotation=45)
 
-    # Set x-axis limits with padding
-    ax.set_xlim(years.min() - 0.5, years.max() + 0.5)
-
-    # Set y-axis to start from 0
+    ax.set_xlim(min(years) - 0.5, max(years) + 0.5)
     ax.set_ylim(bottom=0)
 
     plt.tight_layout()
     return fig
 
 
-def create_feature_importance_chart(importance_dict: dict):
-    """Create a stylized horizontal bar chart with logarithmic scaling for feature importance."""
-    features = list(importance_dict.keys())
-    raw_importances = list(importance_dict.values())
+def create_importance_chart(importance_dict):
+    """Horizontal bar chart for feature importance with earthy green palette."""
+    sorted_items = sorted(importance_dict.items(), key=lambda x: x[1], reverse=True)
+    features, importances = zip(*sorted_items)
 
-    # Map to a logarithmic scale to compress extreme values (preventing 0.0 scores)
-    # Using log1p(x * 10000) safely scales values between ~0.0001 and 1.0 into a readable curve
-    log_importances = [np.log1p(x * 10000) for x in raw_importances]
-    max_log = max(log_importances) if max(log_importances) > 0 else 1
-    
-    # Scale to highly readable 0-100 Relative Impact Score
-    scores = [(x / max_log) * 100 for x in log_importances]
+    fig, ax = plt.subplots(figsize=(10, 4.5))
 
-    # Sort descending based on score
-    sorted_pairs = sorted(zip(scores, features), reverse=True)
-    scores, features = zip(*sorted_pairs)
+    fig.patch.set_facecolor('transparent')
+    ax.set_facecolor('transparent')
 
-    # Create figure
-    fig, ax = plt.subplots(figsize=(10, 6))
+    # Green palette
+    palette = ['#1B4332', '#2D5A27', '#388E3C', '#4CAF50', '#66BB6A']
+    colors = palette[:len(features)]
 
-    # Set background
-    fig.patch.set_facecolor('#FAFAFA')
-    ax.set_facecolor('#FAFAFA')
-
-    # Color gradient based on rank (dark to light green)
-    colors = sns.color_palette("summer", len(features))
-    colors = list(reversed(colors))  # Highest gets the darkest/most prominent color
-
-    # Create horizontal bars
-    bars = ax.barh(features, scores,
+    bars = ax.barh(list(features), list(importances),
                    color=colors,
                    height=0.55,
                    edgecolor='none',
                    alpha=0.9)
 
-    # Add numeric score labels
-    for bar, score in zip(bars, scores):
-        width = bar.get_width()
-        label_text = f" {score:.1f} / 100"
-        
-        # Conditional formatting: if bar is long enough, put text inside
-        if width > 15:
-            ax.text(width - 2,
-                    bar.get_y() + bar.get_height() / 2,
-                    label_text,
-                    va='center',
-                    ha='right',
-                    fontsize=11,
-                    color='white',
-                    fontweight='bold')
-        else:
-            ax.text(width + 2,
-                    bar.get_y() + bar.get_height() / 2,
-                    label_text,
-                    va='center',
-                    ha='left',
-                    fontsize=11,
-                    color='#1A1A2E',
-                    fontweight='bold')
+    # Add value labels
+    for bar, imp in zip(bars, importances):
+        ax.text(imp + 0.02,
+                bar.get_y() + bar.get_height() / 2,
+                f'{imp * 100:.1f}%',
+                va='center',
+                fontsize=10.5,
+                color='#1A1A2E',
+                fontweight='500')
 
-    # Styling
-    ax.set_title('Relative Feature Influence Score\n(Log-Scaled for Balanced Driver Visibility)', 
-                 fontsize=14, fontweight='bold', color='#1A1A2E', pad=15)
-                 
-    ax.set_xlim(0, 110)
+    ax.set_title(
+        'What Drives the Prediction?',
+        fontsize=15,
+        fontweight='700',
+        color='#1A1A2E',
+        pad=18,
+        loc='left'
+    )
+    ax.set_xlabel('Relative Contribution', fontsize=12, color='#6B7280', fontweight='500')
 
-    # Spine styling
-    ax.spines['top'].set_visible(False)
-    ax.spines['right'].set_visible(False)
-    ax.spines['left'].set_visible(False) # Hide left spine for cleaner look
-    ax.spines['bottom'].set_color('#E5E7EB')
+    xlim = max(importances) * 1.2
+    ax.set_xlim(0, min(xlim, 0.6))
 
-    ax.set_xlabel('Influence Score', fontsize=12, color='#6B7280', fontweight='medium')
-    ax.set_xticks([0, 25, 50, 75, 100])
-    ax.tick_params(axis='x', colors='#6B7280')
+    for spine in ['top', 'right']:
+        ax.spines[spine].set_visible(False)
+    for spine in ['left', 'bottom']:
+        ax.spines[spine].set_visible(False)
 
-    # Clean y-axis
-    ax.tick_params(axis='y', length=0, labelsize=11, colors='#1A1A2E')
-    
-    # Invert y-axis so highest importance is at top
+    ax.tick_params(axis='y', labelsize=11, length=0)
+    ax.set_yticklabels(list(features), color='#1A1A2E')
     ax.invert_yaxis()
-    
-    # Add subtle vertical grid lines
-    ax.grid(axis='x', linestyle='--', alpha=0.4, color='#9CA3AF')
-    ax.set_axisbelow(True)
 
+    ax.set_axisbelow(True)
     plt.tight_layout()
     return fig
 
 
-def validate_inputs(crop: str, year: int, pesticides: float,
-                   min_year: int, max_year: int) -> tuple:
-    """Validate user inputs. Returns (is_valid, errors_list)."""
-    errors = []
-
-    if not crop or crop.strip() == "":
-        errors.append("Please select a crop")
-
-    if year < min_year or year > max_year:
-        errors.append(f"Year must be between {min_year} and {max_year}")
-
-    if pesticides < 0:
-        errors.append("Pesticide usage cannot be negative")
-
-    return len(errors) == 0, errors
-
-
 # =============================================================================
-# MAIN APPLICATION UI
+# MAIN APPLICATION
 # =============================================================================
 
 def main():
-    """Main application function."""
-
     # Header
-    st.title("🌾 Yield Metrics")
-    st.markdown("""
-    <div style="color: #6B7280; margin-bottom: 1.5rem;">
-    Predict crop yields in India based on historical data, weather patterns, and agricultural inputs.
-    </div>
-    """, unsafe_allow_html=True)
+    st.title("Yield Metrics")
+    st.caption("Crop yield prediction for Indian agriculture, based on historical weather patterns and agronomic inputs.")
 
     # Disclaimer
-    st.warning("⚠️ **Predictions** are based on historical data and may not reflect current conditions. Use results for guidance only.")
+    st.warning("Predictions are based on historical data analysis (1990–2013). Results should not be used for critical agricultural decisions without further validation.")
 
     # Load models
     lr_model, rf_model = load_models()
     if lr_model is None or rf_model is None:
-        st.error("Failed to load models. Please ensure training has been completed.")
+        st.error("Model files could not be loaded. Ensure training has been completed.")
         return
 
-    # Get available options
+    # Load data & options
+    df = load_features_data()
+    if df.empty:
+        st.error("Dataset failed to load. Check data/processed/Feature_Engineered_Crop_Yield_Data.csv")
+        return
+
     available_crops, min_year, max_year = get_available_options()
-    if not available_crops:
-        st.error("No data available. Please check data files.")
-        return
-
     dataset_stats = get_dataset_stats()
     crop_columns = get_crop_columns(available_crops)
 
-    # =============================================================================
-    # INPUT PARAMETERS SECTION
-    # =============================================================================
-    st.header("📝 Input Parameters")
-    st.caption(f"Available years: {min_year} - {max_year} | Crops: {len(available_crops)}")
+    # Feature extraction from model
+    feature_importance_dict = get_feature_importance(rf_model, crop_columns)
 
-    # Create three columns for inputs
+    st.divider()
+
+    # ==========================================================================
+    # INPUT SECTION
+    # ==========================================================================
+    st.header("Input Parameters")
+
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        crop = st.selectbox("🌱 Select Crop", available_crops, help="Choose the crop for yield prediction")
+        crop = st.selectbox("Crop", available_crops, help="Select target crop for prediction")
 
     with col2:
-        year = st.number_input("📅 Select Year",
-                              min_value=min_year,
-                              max_value=max_year,
-                              value=max_year,
-                              step=1)
+        year = st.number_input(
+            "Forecast Year",
+            min_value=min_year,
+            max_value=max_year,
+            value=max_year,
+            step=1,
+            help=f"Year to predict (dataset range: {min_year}–{max_year})"
+        )
 
     with col3:
-        # Pesticide usage
-        default_pest = float(dataset_stats.get('pesticide_median', 5000.0))
-        min_pest = float(dataset_stats.get('pesticide_min', 0.0))
+        default_pest = float(dataset_stats.get('pesticide_median', 5000))
+        min_pest = float(dataset_stats.get('pesticide_min', 0))
         max_pest = float(dataset_stats.get('pesticide_max', default_pest * 10))
-        step_pest = float(max(1.0, round((max_pest - min_pest) / 200.0)))
+        step_pest = float(max(1, round((max_pest - min_pest) / 200)))
         pesticides = st.number_input(
-            "🧪 Pesticide (tonnes)",
+            "Pesticide Usage (tonnes)",
             min_value=min_pest,
             max_value=max_pest,
             value=default_pest,
             step=step_pest,
-            help=f"Range: {min_pest:.0f} - {max_pest:.0f}"
         )
 
-    # Predict button - full width
-    st.markdown("<div style='margin: 1rem 0;'></div>", unsafe_allow_html=True)
-    predict_clicked = st.button("🚀 Predict Yield",
-                                type="primary",
-                                use_container_width=True)
+    predict_btn = st.button("Predict Yield", type="primary", use_container_width=True)
 
-    # =============================================================================
-    # PREDICTION RESULTS SECTION
-    # =============================================================================
-    if predict_clicked:
-        # Validate inputs
-        is_valid, errors = validate_inputs(crop, year, pesticides, min_year, max_year)
-        if not is_valid:
-            for error in errors:
-                st.error(f"❌ {error}")
-            return
+    # ==========================================================================
+    # PREDICTION SECTION
+    # ==========================================================================
+    if predict_btn:
+        # Validate
+        if year < min_year or year > max_year:
+            st.error(f"Year must be between {min_year} and {max_year}")
+            st.stop()
 
-        # Show loading state
-        with st.spinner("🔄 Analyzing data and making predictions..."):
+        # Fetch historical data for crop-year to get rainfall & temp
+        match = df[(df['Item'] == crop) & (df['Year'] == int(year))]
+        if match.empty:
+            st.error(f"No historical data for {crop} in {year}. The dataset only covers years {min_year}–{max_year}.")
+            st.stop()
 
-            # Get historical data for crop-year
-            df = load_features_data()
-            match = df[(df['Item'] == crop) & (df['Year'] == int(year))]
+        rainfall = float(match['average_rain_fall_mm_per_year'].iloc[0])
+        temp = float(match['avg_temp'].iloc[0])
 
-            if match.empty:
-                st.error(f"No data available for {crop} in {year}. Please try a different year.")
-                return
+        st.info(f"Historical context for {crop} in {year}: Rainfall ≈ {rainfall:.0f} mm, Temperature ≈ {temp:.1f}°C")
 
-            # Use historical rainfall and temperature
-            rainfall = float(match['average_rain_fall_mm_per_year'].iloc[0])
-            temp = float(match['avg_temp'].iloc[0])
-
-            st.info(f"📊 Using historical data: Rainfall={rainfall:.0f}mm, Temperature={temp:.1f}°C")
-
-            # Build features and predict
+        with st.spinner("Analyzing..."):
             try:
-                input_features = build_prediction_features(
-                    crop, year, pesticides, rainfall, temp, crop_columns
-                )
+                # Build feature DataFrame
+                input_df = build_prediction_features(crop, year, pesticides, rainfall, temp, crop_columns)
 
-                # Get predictions
-                yield_lr = lr_model.predict(input_features)[0]
-                yield_rf = rf_model.predict(input_features)[0]
+                # For v1 compatibility - add engineered features and align
+                df_v1 = input_df.copy()
+                df_v1 = calculate_interaction_features(df_v1)
+                df_v1 = add_year_based_features(df_v1)
 
-                # Display success
-                st.success("✅ Prediction Complete!")
+                # Align to full v1 feature set
+                v1_feats = CORE_FEATURES + ENGINEERED_FEATURES + ['year_normalized'] + crop_columns
+                for col in v1_feats:
+                    if col not in df_v1.columns:
+                        df_v1[col] = 0
+                X_v1 = df_v1[v1_feats]
 
-                # Prediction Results Table
-                st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
-                st.header("📊 Prediction Results")
-                display_prediction_table(yield_lr, yield_rf)
+                # Predict
+                y_lr = float(lr_model.predict(X_v1)[0])
+                y_rf = float(rf_model.predict(X_v1)[0])
 
-                # Historical Trend Chart
-                st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
-                st.header("📈 Historical Yield Trend")
-                trend_fig = create_trend_plot(df, crop)
-                st.pyplot(trend_fig)
+                # Results
+                st.success("Prediction Complete")
 
-                # Feature Importance Chart
-                st.markdown("<div style='margin-top: 2rem;'></div>", unsafe_allow_html=True)
-                st.header("💡 Yield Drivers Analysis")
-                st.caption("Displays the relative impact of environmental and temporal factors on yield predictions. Scores are log-scaled to balance visibility across magnitude differences.")
-                importance_dict = get_feature_importance(rf_model, crop_columns)
-                importance_fig = create_feature_importance_chart(importance_dict)
-                st.pyplot(importance_fig)
+                # Display table
+                display_results_table(y_rf, y_rf)  # We use y_rf as champion for now
+
+                # Charts - two columns
+                col_a, col_b = st.columns(2)
+                with col_a:
+                    st.subheader("Historical Trend")
+                    st.pyplot(create_area_chart(df, crop))
+                with col_b:
+                    st.subheader("Feature Importance")
+                    st.pyplot(create_importance_chart(feature_importance_dict))
 
             except Exception as e:
                 st.error(f"Prediction failed: {e}")
 
-    # =============================================================================
+    # ==========================================================================
     # FOOTER
-    # =============================================================================
+    # ==========================================================================
+    st.divider()
     st.markdown("""
-    <div class="footer">
-        <p>🌾 Yield Metrics | Built with Streamlit</p>
-        <p style="font-size: 0.75rem; margin-top: 0.5rem;">
-        Model training data: India Crop Yield Dataset (1990-2013)
-        </p>
+    <div class="app-footer">
+        <p>Yield Metrics — Built with Streamlit</p>
+        <p style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.7;">Data: India Crop Yield (1990–2013) | Models: v1 (Linear Regression & Random Forest)</p>
     </div>
     """, unsafe_allow_html=True)
 
