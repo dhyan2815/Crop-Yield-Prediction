@@ -21,11 +21,11 @@
 | Streamlit UI (3-column, area charts, feature importance) | ✅ COMPLETE | `app.py` modern design implemented |
 | Unit Standardization (kg/ha) | ✅ COMPLETE | `feature_engineer_v2.py:standardize_yield()` |
 | Documentation (UPGRADE_PLAN.md) | ✅ COMPLETE | Upgrade roadmap documented |
-| Feature Module Consolidation | ⚠️ PARTIAL | `feature_engineer.py` and `feature_engineer_v2.py` need unification |
-| URL Display with Crop Filter | ❌ MISSING | Must add data source transparency section |
-| CSV Download Functionality | ❌ MISSING | Export processed data with filters |
-| End-to-End Integration Testing | ⚠️ INCOMPLETE | Verify all new components work together |
-| Issue #4 Closure | ❌ PENDING | Close after all tasks complete |
+| Feature Module Consolidation | ✅ COMPLETE | `feature_engineer_v2.py` unified; `feature_engineer.py` deprecated wrapper |
+| URL Display with Crop Filter | ✅ COMPLETE | Data sources section with CROP_DATA_SOURCES mapping |
+| CSV Download Functionality | ✅ COMPLETE | Full + filtered dataset export via st.download_button |
+| End-to-End Integration Testing | ⚠️ IN PROGRESS | Verify app runs, predictions work, new sections display |
+| Issue #4 Closure | ❌ PENDING | Close after verification and summary doc |
 
 ---
 
