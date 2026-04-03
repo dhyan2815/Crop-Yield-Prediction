@@ -32,6 +32,37 @@ from scripts.feature_engineer_v2 import (
 )
 
 # =============================================================================
+# DATA SOURCE MAPPINGS (URL transparency per crop)
+# =============================================================================
+
+CROP_DATA_SOURCES = {
+    "Rice": {
+        "UPAg Yield Statistics": "https://api.upag.gov.in/v1/yield",
+        "FAOSTAT Rice Data": "https://www.fao.org/faostat/en/#data/QC",
+        "Sentinel-2 NDVI": "https://services.sentinel-hub.com/ogc/wms",
+        "SoilGrids India": "https://rest.isric.org/soilgrids/v2.0/properties/query",
+    },
+    "Wheat": {
+        "UPAg Yield Statistics": "https://api.upag.gov.in/v1/yield",
+        "Agmarknet MSP": "https://api.data.gov.in/resource/9ef273ef-a641-4de2-a243-a04145617300",
+        "Open-Meteo Weather": "https://archive-api.open-meteo.com/v1/archive",
+    },
+    "Maize": {
+        "UPAg Yield Statistics": "https://api.upag.gov.in/v1/yield",
+        "ICAR Research": "https://icar.org.in/technical-documents",
+    },
+    "Sugar Cane": {
+        "Agmarknet MSP": "https://api.data.gov.in/resource/9ef273ef-a641-4de2-a243-a04145617300",
+        "FAOSTAT Sugar Cane Data": "https://www.fao.org/faostat/en/#data/QC",
+    },
+    "default": {
+        "UPAg API Documentation": "https://api.upag.gov.in/docs",
+        "FAOSTAT Data Portal": "https://www.fao.org/faostat/en/#data/QC",
+        "India Data Portal": "https://data.gov.in",
+    },
+}
+
+# =============================================================================
 # PAGE CONFIG
 # =============================================================================
 
@@ -579,6 +610,45 @@ def main():
                 st.error(f"Prediction failed: {e}")
                 import traceback
                 st.code(traceback.format_exc())
+
+    # ==========================================================================
+    # DATA SOURCES TRANSPARENCY SECTION
+    # ==========================================================================
+    st.divider()
+    st.header("📊 Data Sources & References")
+    st.markdown(f"Transparent sourcing for **{crop}** prediction:")
+
+    sources = CROP_DATA_SOURCES.get(crop, CROP_DATA_SOURCES["default"])
+    for source_name, url in sources.items():
+        st.markdown(f"- [{source_name}]({url})")
+
+    # ==========================================================================
+    # CSV DOWNLOAD SECTION
+    # ==========================================================================
+    st.header("📥 Download Data")
+    col_dl1, col_dl2 = st.columns(2)
+
+    with col_dl1:
+        if st.button("📊 Download Full Dataset", type="secondary", use_container_width=True):
+            csv = df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                "⬇️ Confirm Download",
+                data=csv,
+                file_name="crop_yield_full_features.csv",
+                mime="text/csv",
+            )
+
+    with col_dl2:
+        crop_filter = st.checkbox("Filter to selected crop only?", value=False, key="dfilter")
+        if crop_filter:
+            filtered_df = df[df['Item'] == crop]
+            csv_filtered = filtered_df.to_csv(index=False).encode('utf-8')
+            st.download_button(
+                f"⬇️ Download {crop} Data",
+                data=csv_filtered,
+                file_name=f"crop_yield_{crop.lower().replace(' ', '_')}.csv",
+                mime="text/csv",
+            )
 
     # ==========================================================================
     # FOOTER
