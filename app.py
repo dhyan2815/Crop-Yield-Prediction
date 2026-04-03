@@ -483,7 +483,23 @@ def build_prediction_features(crop, year, pesticides, rainfall, temp, crop_colum
 def get_feature_importance(model, crop_columns):
     """Extract feature importance, grouping crop one-hot encodings into 'Crop Type'."""
     importances = model.feature_importances_
-    names = rf_model.feature_names_in_
+
+    # Get feature names - works with sklearn models; for XGBoost/LightGBM we need alternatives
+    if hasattr(model, 'feature_names_in_'):
+        names = model.feature_names_in_
+    else:
+        # For models without feature_names_in_, use a fallback or return basic importance dict
+        names = [
+            'average_rain_fall_mm_per_year', 'avg_temp', 'pesticides_tonnes',
+            'heat_stress_degreedays', 'drought_intensity',
+            'ndvi', 'ndvi_adjusted',
+            'soil_ph', 'soil_nitrogen', 'soil_organic_carbon',
+            'msp_trend',
+            'temp_rainfall_interaction', 'rainfall_deviation',
+            'rainfall_squared', 'temp_squared', 'pesticide_per_rainfall',
+            'year_normalized'
+        ] + crop_columns
+
     imp_dict = dict(zip(names, importances))
 
     # Group crop columns
