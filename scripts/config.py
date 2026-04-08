@@ -1,29 +1,42 @@
 # scripts/config.py
-"""Shared configuration constants for the crop yield prediction pipeline."""
+"""
+Shared configuration constants for the Crop Yield Intelligence System (Project 2026).
+"""
+
+import os
+
+# Base Directories
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(BASE_DIR, "data")
+MODEL_DIR = os.path.join(BASE_DIR, "models")
 
 # Data paths
-RAW_DATA_PATH = "data/raw/Crop_Yield_Data.csv"
-RAINFALL_DATA_PATH = "data/raw/Daily Rainfall at State Level_Filtered_Data.csv"
-PROCESSED_DATA_PATH = "data/processed/CLEANED_Processed_India_Crop_Yield_Data.csv"
-FEATURES_DATA_PATH = "data/processed/Feature_Engineered_Crop_Yield_Data.csv"
+RAW_DATA_PATH = os.path.join(DATA_DIR, "raw", "Crop_Yield_Data.csv")
+RAINFALL_DATA_PATH = os.path.join(DATA_DIR, "raw", "Daily Rainfall at State Level_Filtered_Data.csv")
+PROCESSED_DATA_PATH = os.path.join(DATA_DIR, "processed", "CLEANED_Processed_India_Crop_Yield_Data.csv")
+FEATURES_DATA_PATH = os.path.join(DATA_DIR, "processed", "Feature_Engineered_Crop_Yield_Data.csv")
 
 # Model paths
-MODEL_DIR = "models"
-LR_MODEL_PATH = f"{MODEL_DIR}/linear_regression_model.pkl"
-RF_MODEL_PATH = f"{MODEL_DIR}/random_forest_model.pkl"
-CHAMPION_MODEL_PATH = f"{MODEL_DIR}/champion_model_v2.pkl"
+LR_MODEL_PATH = os.path.join(MODEL_DIR, "linear_regression_model.pkl")
+RF_MODEL_PATH = os.path.join(MODEL_DIR, "random_forest_model.pkl")
+CHAMPION_MODEL_PATH = os.path.join(MODEL_DIR, "champion_model_v2.pkl")
+V2_FEATURES_PATH = os.path.join(MODEL_DIR, "v2_features.joblib")
 
 # Target variable
-TARGET_COLUMN = "yield_kg_ha"  # standardized to kg/ha
+TARGET_COLUMN = "yield_kg_ha"  # Standardized to kg/ha
 
-# Core numeric features (always used)
+# =============================================================================
+# FEATURE SCHEMAS
+# =============================================================================
+
+# Core climate and agricultural inputs
 CORE_FEATURES = [
     "average_rain_fall_mm_per_year",
     "avg_temp",
     "pesticides_tonnes"
 ]
 
-# Engineered features (v1, legacy)
+# Legacy interaction and polynomial features (v1)
 ENGINEERED_FEATURES = [
     "temp_rainfall_interaction",
     "rainfall_deviation",
@@ -32,7 +45,7 @@ ENGINEERED_FEATURES = [
     "pesticide_per_rainfall"
 ]
 
-# v2 feature additions
+# Professional agronomic and satellite features (v2)
 V2_FEATURES = [
     "heat_stress_degreedays",
     "drought_intensity",
@@ -45,5 +58,5 @@ V2_FEATURES = [
     "year_normalized",
 ]
 
-# All features the champion model expects
+# Full canonical feature set for the 2026 Champion Model
 CHAMPION_FEATURES = CORE_FEATURES + V2_FEATURES + ENGINEERED_FEATURES
