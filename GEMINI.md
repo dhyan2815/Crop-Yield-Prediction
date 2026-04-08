@@ -2,7 +2,12 @@
 
 ## Changelog
 
+**2026-04-09**
+- Implemented **Task 1 of the Optimization Plan**: Created `utils` package and `utils/data_loader.py`.
+- Extracted and centralized data loading logic, model loading, and dataset statistics into the new `utils/data_loader.py` utility.
+
 **2026-04-02**
+- Implemented Task 2 of the optimization plan: Created `utils/predictor.py` with extracted prediction and feature logic.
 - Implemented **Project 2026: The Next-Gen Crop Yield Intelligence System**.
 - **Phase 1 (Data):** Created `scripts/data_ingestor.py` with Open-Meteo and FAOSTAT API connectors for latest (2024-2026) data fetching.
 - **Phase 2 (Features):** Developed `scripts/feature_engineer_v2.py` integrating Satellite proxies (NDVI), Soil Health (pH/Nitrogen), and Economic drivers (MSP).
@@ -23,3 +28,6 @@
 - Replaced the UI layout of the main function with the new clean styling featuring a three-column input interface and improved metrics and aesthetics (Task 7).
 - Added `.streamlit/config.toml` to enforce a light theme (`base="light"`) and fix the unreadable white text issue that occurred when Streamlit defaulted to dark mode, achieving the intended color code from the implementation plan.
 - Refactored the injected `<style>` block in `app.py` to remove hardcoded `background-color` and `color` properties, allowing Streamlit to naturally adapt to the light theme configuration without causing text invisibility clashes if the user toggles dark mode.
+
+**2026-04-10**
+- Implemented Task 3 of the optimization plan: Created `utils/visualizations.py` with extracted visualization logic (`display_results_table`, `create_area_chart`, `create_importance_chart`) to improve modularity and maintainability.
