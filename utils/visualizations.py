@@ -14,18 +14,19 @@ def display_prediction_card(yield_val, status, message):
     color = "#2D5A27" if status == "Healthy" else "#F59E0B" if status == "Moderate" else "#dc2626"
     
     st.markdown(f"""
-    <div style="background-color: #ffffff; border-radius: 12px; padding: 25px; border-left: 8px solid {color}; box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;">
-        <h3 style="margin: 0; color: #6B7280; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Predicted Yield</h3>
+    <div style="background-color: var(--card-bg); border-radius: 12px; padding: 25px; border-left: 8px solid {color}; border: 1px solid var(--card-border); box-shadow: 0 4px 6px rgba(0,0,0,0.05); margin-bottom: 20px;">
+        <h3 style="margin: 0; color: var(--text-secondary); font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Predicted Yield</h3>
         <div style="display: flex; align-items: baseline; gap: 10px; margin: 10px 0;">
-            <span style="font-size: 3rem; font-weight: 800; color: #1A1A2E;">{yield_val:,.0f}</span>
-            <span style="font-size: 1.2rem; color: #4B5563;">kg/ha</span>
+            <span style="font-size: 3rem; font-weight: 800; color: var(--text-primary);">{yield_val:,.0f}</span>
+            <span style="font-size: 1.2rem; color: var(--text-secondary);">kg/ha</span>
         </div>
         <div style="background-color: {color}20; color: {color}; padding: 6px 12px; border-radius: 20px; display: inline-block; font-weight: 600; font-size: 0.85rem;">
             ● {status} Condition
         </div>
-        <p style="margin-top: 15px; color: #4B5563; font-size: 0.95rem; line-height: 1.5;">{message}</p>
+        <p style="margin-top: 15px; color: var(--text-secondary); font-size: 0.95rem; line-height: 1.5;">{message}</p>
     </div>
     """, unsafe_allow_html=True)
+
 
 def create_historical_chart(df, state, crop):
     """Plot historical yield trend for the selected state and crop."""
