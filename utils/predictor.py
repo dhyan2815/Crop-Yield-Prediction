@@ -12,8 +12,16 @@ def build_prediction_features(crop, year, pesticides, rainfall, temp, crop_colum
     Build feature dict for model prediction using the v2 feature pipeline.
     All v2 features are constructed here, using defaults for satellite/soil
     when external APIs are unavailable.
+
+    IMPORTANT: Feature names must match what the champion model was trained with.
+    The model expects these legacy names from the original training:
+    - heat_stress_index (not heat_stress_degreedays)
+    - ndvi_proxy (not ndvi/ndvi_adjusted)
+    - hg/ha_yield (old target column, needs dummy value)
     """
     features = {
+        'Year': year,
+        'hg/ha_yield': 0,  # Legacy - model was trained with this as feature
         'average_rain_fall_mm_per_year': rainfall,
         'avg_temp': temp,
         'pesticides_tonnes': pesticides,
@@ -31,15 +39,15 @@ def build_prediction_features(crop, year, pesticides, rainfall, temp, crop_colum
     else:
         features['year_normalized'] = 1.0
 
-    features['heat_stress_degreedays'] = float(max(0.0, temp - 35.0))
+    # Model expects heat_stress_index (legacy name)
+    heat_stress = float(max(0.0, temp - 35.0))
+    features['heat_stress_index'] = heat_stress
     features['drought_intensity'] = float(max(0.0, 1.0 - (rainfall / 500.0)) if rainfall < 500 else 0.0)
 
-    features['ndvi'] = float(DEFAULT_NDVI)
-    ndvi_adj = DEFAULT_NDVI + (rainfall / 2000.0) - (features['heat_stress_degreedays'] / 10.0)
-    features['ndvi_adjusted'] = float(np.clip(ndvi_adj, 0, 1))
+    # Model expects ndvi_proxy (legacy name)
+    features['ndvi_proxy'] = float(DEFAULT_NDVI)
     features['soil_ph'] = DEFAULT_SOIL_PH
     features['soil_nitrogen'] = DEFAULT_SOIL_NITROGEN
-    features['soil_organic_carbon'] = DEFAULT_SOIL_ORGANIC_CARBON
 
     base_year = 1990
     features['msp_trend'] = 1.0 + (year - base_year) * 0.03

@@ -154,6 +154,10 @@ def engineer_features_v2(
     Full next-gen feature engineering pipeline.
     Returns DataFrame with standardized yield and all features.
     """
+    # 0. Clean Item column for one-hot encoding
+    if 'Item' in df.columns:
+        df['Item'] = df['Item'].str.strip().str.replace('"', '', regex=False)
+
     # 1. Standardize yield units
     df = standardize_yield(df)
 
@@ -169,6 +173,11 @@ def engineer_features_v2(
     # 5. Apply interaction and year-based features
     df = calculate_interaction_features(df)
     df = add_year_based_features(df)
+
+    # 6. Add crop one-hot encoding (critical for prediction)
+    if 'Item' in df.columns:
+        crop_dummies = pd.get_dummies(df['Item'], prefix='Item')
+        df = pd.concat([df, crop_dummies], axis=1)
 
     return df
 

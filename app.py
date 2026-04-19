@@ -498,9 +498,10 @@ def main():
                     st.pyplot(create_importance_chart(feature_importance_dict))
 
             except Exception as e:
-                st.error(f"Prediction failed: {e}")
-                import traceback
-                st.code(traceback.format_exc())
+                st.error("Prediction failed. Please check input parameters and try again.")
+                # Log internally only - never expose tracebacks to users
+                import logging
+                logging.error(f"Prediction error: {type(e).__name__}: {e}")
 
     # ==========================================================================
     # DATA SOURCES TRANSPARENCY SECTION

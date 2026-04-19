@@ -27,22 +27,10 @@ def test_v2_pipeline_produces_all_features():
 
 
 def test_deprecated_wrapper_warns():
-    """Deprecated feature_engineer module should emit DeprecationWarning."""
-    import warnings
-
-    # The warning is at module level (import time), so we need to reload
-    import importlib
-    from scripts import feature_engineer as fe_module
-    with warnings.catch_warnings(record=True) as w:
-        warnings.simplefilter("always")
-        try:
-            # Re-import triggers warning
-            import importlib
-            fe_module_reloaded = importlib.reload(__import__('scripts.feature_engineer', fromlist=['']))
-            assert any(issubclass(wi.category, DeprecationWarning) for wi in w)
-        except (FileNotFoundError, ModuleNotFoundError):
-            # Data file not found is acceptable
-            pass
+    """Deprecated feature_engineer module removed - test marked as skip."""
+    # The old feature_engineer module was removed in v2 consolidation.
+    # This test is kept as a placeholder for historical context.
+    pytest.skip("Deprecated module feature_engineer removed - no longer applicable")
 
 
 def test_feature_order_matches_config():
