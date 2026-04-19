@@ -70,7 +70,7 @@ def apply_custom_css():
 
 def display_header():
     """Display the application header."""
-    st.title("🌾 Yield Intelligence 2026")
+    st.title("🌾 Yield Metrics")
     st.caption("Next-Gen Crop Yield Forecasting for Indian States using Machine Learning.")
     st.info("This system uses a ground-up rebuild with a strict feature contract to ensure zero-mismatch predictions.")
 
@@ -80,7 +80,7 @@ def display_footer():
     st.markdown("""
     <div class="app-footer">
         <p>Built with Streamlit & Random Forest</p>
-        <p style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.7;">Data: India Agricultural Statistics (1997–2020) | Rebuild: April 2026</p>
+        <p style="font-size: 0.75rem; margin-top: 0.25rem; opacity: 0.7;">Data: India Agricultural Statistics (1997–2020)</p>
     </div>
     """, unsafe_allow_html=True)
 

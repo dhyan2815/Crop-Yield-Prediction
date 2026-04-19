@@ -12,7 +12,7 @@ from utils.visualizations import display_prediction_card, create_historical_char
 # PAGE CONFIG
 # =============================================================================
 st.set_page_config(
-    page_title="Yield Intelligence 2026",
+    page_title="Yield Metrics",
     page_icon="🌾",
     layout="wide",
     initial_sidebar_state="expanded"

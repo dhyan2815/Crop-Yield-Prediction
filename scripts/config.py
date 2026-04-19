@@ -33,7 +33,5 @@ YEAR_MAX = 2020
 
 # Data sourcing references for transparency
 APP_DATA_SOURCES = {
-    "Primary Dataset": "https://www.kaggle.com/datasets/akshatgupta7/crop-yield-in-indian-states",
-    "Open-Meteo": "https://open-meteo.com/",
-    "FAOSTAT": "https://www.fao.org/faostat/en/#data/QC"
+    "Primary Dataset": "https://www.kaggle.com/datasets/akshatgupta7/crop-yield-in-indian-states-dataset"
 }

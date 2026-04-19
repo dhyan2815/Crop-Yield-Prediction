@@ -1,4 +1,4 @@
-# 🌾 Yield Metrics
+# 🌾 Metrics
 **Next-Gen Indian Crop Yield Forecasting System**
 
 Yield Metrics is a professional-grade web application designed to predict and simulate crop yields across Indian states. Rebuilt from the ground up in April 2026, it features a "Contract-Based" machine learning architecture that guarantees zero interface mismatches and high-precision forecasting.
