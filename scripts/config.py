@@ -60,3 +60,34 @@ V2_FEATURES = [
 
 # Full canonical feature set for the 2026 Champion Model
 CHAMPION_FEATURES = CORE_FEATURES + V2_FEATURES + ENGINEERED_FEATURES
+
+# =============================================================================
+# DATA SOURCE MAPPINGS (URL transparency per crop)
+# =============================================================================
+
+CROP_DATA_SOURCES = {
+    "Rice": {
+        "UPAg Yield Statistics": "https://api.upag.gov.in/v1/yield",
+        "FAOSTAT Rice Data": "https://www.fao.org/faostat/en/#data/QC",
+        "Sentinel-2 NDVI": "https://services.sentinel-hub.com/ogc/wms",
+        "SoilGrids India": "https://rest.isric.org/soilgrids/v2.0/properties/query",
+    },
+    "Wheat": {
+        "UPAg Yield Statistics": "https://api.upag.gov.in/v1/yield",
+        "Agmarknet MSP": "https://api.data.gov.in/resource/9ef273ef-a641-4de2-a243-a04145617300",
+        "Open-Meteo Weather": "https://archive-api.open-meteo.com/v1/archive",
+    },
+    "Maize": {
+        "UPAg Yield Statistics": "https://api.upag.gov.in/v1/yield",
+        "ICAR Research": "https://icar.org.in/technical-documents",
+    },
+    "Sugar Cane": {
+        "Agmarknet MSP": "https://api.data.gov.in/resource/9ef273ef-a641-4de2-a243-a04145617300",
+        "FAOSTAT Sugar Cane Data": "https://www.fao.org/faostat/en/#data/QC",
+    },
+    "default": {
+        "UPAg API Documentation": "https://api.upag.gov.in/docs",
+        "FAOSTAT Data Portal": "https://www.fao.org/faostat/en/#data/QC",
+        "India Data Portal": "https://data.gov.in",
+    },
+}

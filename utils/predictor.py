@@ -93,3 +93,39 @@ def get_feature_importance(model, crop_columns):
     if total > 0:
         display = {k: v / total for k, v in display.items()}
     return display
+
+def predict_all_models(models, input_df, crop_columns):
+    """
+    Predict using champion and legacy models, handling feature alignment.
+    Returns: (y_champion, y_rf, y_lr)
+    """
+    from scripts.feature_engineer_v2 import FEATURE_COLUMNS as V2_FEATURE_COLUMNS, calculate_interaction_features, add_year_based_features
+    from scripts.config import CORE_FEATURES, ENGINEERED_FEATURES
+
+    # 1. Champion Prediction
+    # Ensure all v2 columns are present in correct order
+    missing_cols = [c for c in V2_FEATURE_COLUMNS if c not in input_df.columns]
+    for col in missing_cols:
+        input_df[col] = 0
+    X_champion = input_df[V2_FEATURE_COLUMNS + crop_columns]
+    y_champion = float(models['champion'].predict(X_champion)[0])
+
+    # 2. Legacy Predictions (Comparison)
+    y_lr = None
+    y_rf = None
+    if models.get('lr') and models.get('rf'):
+        df_v1 = input_df.copy()
+        # Some v1 features might need recalculation if not in input_df
+        df_v1 = calculate_interaction_features(df_v1)
+        df_v1 = add_year_based_features(df_v1)
+        
+        v1_feats = CORE_FEATURES + ENGINEERED_FEATURES + ['year_normalized'] + crop_columns
+        # Ensure all v1 features exist
+        for col in v1_feats:
+            if col not in df_dict := df_v1.columns:
+                df_v1[col] = 0
+        X_v1 = df_v1[v1_feats]
+        y_lr = float(models['lr'].predict(X_v1)[0])
+        y_rf = float(models['rf'].predict(X_v1)[0])
+
+    return y_champion, y_rf, y_lr

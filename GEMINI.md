@@ -31,3 +31,10 @@
 
 **2026-04-10**
 - Implemented Task 3 of the optimization plan: Created `utils/visualizations.py` with extracted visualization logic (`display_results_table`, `create_area_chart`, `create_importance_chart`) to improve modularity and maintainability.
+
+**2026-04-19**
+- Performed major code reorganization of `app.py`.
+- Moved extensive CSS and UI helper functions (header, footer, data source display) to a new `utils/ui_components.py`.
+- Centralized `CROP_DATA_SOURCES` configuration in `scripts/config.py`.
+- Extracted model prediction and feature alignment logic into `utils/predictor.py` under the `predict_all_models` function.
+- Refactored `app.py` to be a clean entry point, improving testability and code professional standards.
