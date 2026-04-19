@@ -1,4 +1,4 @@
 [theme]
-# Removing custom hardcoded colors to allow native switching
-# but keeping primary for brand consistency
 primaryColor="#2D5A27"
+# We leave background and text colors to be handled by Streamlit's native engine
+# based on the user's system preferences or toggle.
