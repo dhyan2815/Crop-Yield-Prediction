@@ -122,7 +122,7 @@ def predict_all_models(models, input_df, crop_columns):
         v1_feats = CORE_FEATURES + ENGINEERED_FEATURES + ['year_normalized'] + crop_columns
         # Ensure all v1 features exist
         for col in v1_feats:
-            if col not in df_dict := df_v1.columns:
+            if col not in df_v1.columns:
                 df_v1[col] = 0
         X_v1 = df_v1[v1_feats]
         y_lr = float(models['lr'].predict(X_v1)[0])

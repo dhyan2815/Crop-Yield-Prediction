@@ -38,3 +38,6 @@
 - Centralized `CROP_DATA_SOURCES` configuration in `scripts/config.py`.
 - Extracted model prediction and feature alignment logic into `utils/predictor.py` under the `predict_all_models` function.
 - Refactored `app.py` to be a clean entry point, improving testability and code professional standards.
+
+**2026-04-19**
+- Fixed a `SyntaxError` in `utils/predictor.py` caused by an invalid walrus operator assignment (`:=`) within a comparison inside an `if` statement. Corrected the logic to directly check columns in `df_v1.columns`.
