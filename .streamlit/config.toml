@@ -1,0 +1,4 @@
+[theme]
+# Removing custom hardcoded colors to allow native switching
+# but keeping primary for brand consistency
+primaryColor="#2D5A27"

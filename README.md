@@ -1,36 +1,50 @@
-## 🌾 Yield Metrics
+# 🌾 Yield Intelligence 2026
+**Next-Gen Indian Crop Yield Forecasting System**
 
-Yield Metrics is a Streamlit app that predicts crop yields in India using historical data. It combines rainfall, average temperature, and pesticide usage to estimate yield, and visualizes results for quick comparison and context.
+Yield Intelligence 2026 is a professional-grade web application designed to predict and simulate crop yields across Indian states. Rebuilt from the ground up in April 2026, it features a "Contract-Based" machine learning architecture that guarantees zero interface mismatches and high-precision forecasting.
 
-<div align="center">
-  <img src="assets/yield_workflow.png" alt="Project at a Glance - SmokeSignal AI" width="800" />
-  
-</div>
+## 🌟 Key Features
+-   **Contract-Based Inference**: Uses a JSON-based "Feature Contract" (`models/feature_columns.json`) to perfectly align frontend inputs with ML model requirements.
+-   **Scenario Simulator**: Interactive sliders and dropdowns to simulate yield forecasts based on State, Crop, Year, and Season.
+-   **Premium Dashboard**: A modern, theme-aware UI (Light/Dark mode) with interactive Plotly visualizations.
+-   **Risk Assessment**: Real-time evaluation of yield health (Healthy, Moderate, or Critical) based on historical benchmarks.
+-   **Historical Data Intelligence**: Deep-dive into 20+ years of Indian agricultural statistics (1997–2020).
 
-## What you can do
-- Predict yield for a selected crop and year
-- See predictions from two models: Linear Regression and Random Forest
-- Compare predictions in a bar chart
-- View the historical average yield trend over time
+## 🛠️ Technology Stack
+-   **Frontend**: Streamlit with custom CSS (Glassmorphism & Interactive Cards)
+-   **Machine Learning**: Random Forest Regressor (Scikit-Learn 1.7.0)
+-   **Visualizations**: Plotly (Interactive Charts) & HTML5/CSS3
+-   **Data Processing**: Pandas & NumPy
 
-## How it works
-- Loads crop data (rainfall, temperature, pesticide use) for your selection.
-- Predicts yield using two models.
-- Shows results and comparisons in charts.
+## 📂 Project Architecture
+The project follows a modular 2026-standard structure:
+-   `app.py`: Main entry point and Dashboard UI.
+-   `models/`: Contains the Champion Model (`model.pkl`) and the Feature Contract (`feature_columns.json`).
+-   `utils/`: Refactored modules for Prediction engine, Data Loading, and UI Components.
+-   `scripts/`: Configuration and project metadata.
+-   `data/`: Version-controlled datasets (Raw & Processed).
 
-## Data-driven inputs
-- Crop list and year range are derived from the dataset.
-- Pesticide input defaults to the dataset median and is bounded by dataset min/max.
+## 🚀 Getting Started
 
-### Visuals
+### 1. Installation
+Ensure you have Python 3.10+ installed, then run:
+```powershell
+pip install -r requirements.txt
+```
 
-![Prediction Comparison](assets/Soyabean_yield_pred.png)
+### 2. Launch the Dashboard
+Start the Streamlit application:
+```powershell
+streamlit run app.py
+```
 
-![Historical Yield Trend](assets/hist_yield_trend_graph.png)
+## 📊 The "Contract" Pattern
+This project implements a unique architectural pattern to eliminate common "shape mismatch" errors in ML deployments. The `models/feature_columns.json` file serves as a single source of truth. The prediction engine dynamically builds input vectors to match this contract, allowing for a flexible and crash-proof user experience.
 
+## 📈 Data Sources
+Our intelligence is powered by high-granularity Indian agricultural data:
+-   **Kaggle India Crop Yield Dataset** (1997–2020)
+-   **Agricultural Statistics at a Glance**
 
-## Disclaimer
-
-- Predictions are estimates based on historical data and may not reflect current conditions.
-- Use results for guidance only; not for critical decisions.
-- No warranties; use at your own risk.
+---
+© 2026 Crop Yield Prediction Project | Designed for Accuracy & Professionalism

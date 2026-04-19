@@ -1,29 +1,57 @@
-# Byte-compiled / optimized / DLL files
+# ===================================================
+# AI Assistant Files
+# ===================================================
+.claude/
+
+# ===================================================
+# Python
+# ===================================================
 __pycache__/
 *.py[cod]
 *$py.class
+*.pyc
+.pytest_cache/
 
-# Virtual environment
+# ===================================================
+# Legacy Model Artifacts (these are superseded)
+# ===================================================
+models/champion_model_v2.pkl
+models/linear_regression_model.pkl
+models/random_forest_model.pkl
+models/v2_features.joblib
+
+# ===================================================
+# Virtual Environment
+# ===================================================
 .venv/
 env/
 venv/
 
-# VS Code settings
+# ===================================================
+# Editor & IDE
+# ===================================================
 .vscode/
 
-# Jupyter Notebook checkpoints
+# ===================================================
+# Jupyter Notebook Checkpoints
+# ===================================================
 .ipynb_checkpoints/
 
-# Python environment files
+# ===================================================
+# Environment & Secrets
+# ===================================================
 *.env
-*.venv
+.env
 
-# Logs and temp
+# ===================================================
+# Logs & Temp Files
+# ===================================================
 *.log
 *.tmp
 *.swp
 
-# OS-specific
+# ===================================================
+# OS-Specific
+# ===================================================
 .DS_Store
 Thumbs.db
-.venv/Lib/site-packages/adodbapi/examples/db_table_names.py
