@@ -1,58 +1,44 @@
 import streamlit as st
 import pandas as pd
 import joblib
-from scripts.config import LR_MODEL_PATH, RF_MODEL_PATH, CHAMPION_MODEL_PATH, FEATURES_DATA_PATH
+import json
+import os
+from scripts.config import MODEL_PATH, CONTRACT_PATH, FEATURES_DATA_PATH
 
 @st.cache_resource
-def load_models():
-    """Load trained ML models."""
-    models = {}
+def load_model_and_contract():
+    """Load the trained model and the feature contract JSON."""
     try:
-        models['champion'] = joblib.load(CHAMPION_MODEL_PATH)
-    except Exception:
-        models['champion'] = None
-    try:
-        models['lr'] = joblib.load(LR_MODEL_PATH)
-    except Exception:
-        models['lr'] = None
-    try:
-        models['rf'] = joblib.load(RF_MODEL_PATH)
-    except Exception:
-        models['rf'] = None
-    return models
+        model = joblib.load(MODEL_PATH)
+        with open(CONTRACT_PATH, 'r') as f:
+            contract = json.load(f)
+        return model, contract
+    except Exception as e:
+        st.error(f"Failed to load AI model or contract: {e}")
+        return None, None
 
 @st.cache_data
-def load_features_data():
-    """Load processed features data."""
+def load_reference_data():
+    """Load the processed features data to extract UI options (States, Crops, Seasons)."""
     try:
+        if not os.path.exists(FEATURES_DATA_PATH):
+            return pd.DataFrame()
         df = pd.read_csv(FEATURES_DATA_PATH)
-        df.columns = df.columns.str.strip()
-        if 'Item' in df.columns:
-            df['Item'] = df['Item'].str.strip().str.replace('"', '', regex=False)
         return df
     except Exception as e:
-        st.error(f"Failed to load data: {e}")
+        st.error(f"Failed to load reference data: {e}")
         return pd.DataFrame()
 
 @st.cache_data
-def get_available_options():
-    """Get available crops and year range."""
-    df = load_features_data()
+def get_ui_options():
+    """Extract states, crops, and seasons from the data for the UI dropdowns."""
+    df = load_reference_data()
     if df.empty:
-        return [], 1990, 2013
-    crops = sorted(df['Item'].unique())
-    min_year = int(df['Year'].min())
-    max_year = int(df['Year'].max())
-    return crops, min_year, max_year
-
-@st.cache_data
-def get_dataset_stats():
-    """Compute pesticide statistics."""
-    df = load_features_data()
-    if df.empty:
-        return {'pesticide_min': 0, 'pesticide_max': 100000, 'pesticide_median': 5000}
-    return {
-        'pesticide_min': float(df['pesticides_tonnes'].min()),
-        'pesticide_max': float(df['pesticides_tonnes'].max()),
-        'pesticide_median': float(df['pesticides_tonnes'].median()),
-    }
+        return [], [], []
+    
+    # We find columns starting with state_, crop_, season_
+    states = sorted([c.replace('state_', '') for c in df.columns if c.startswith('state_')])
+    crops = sorted([c.replace('crop_', '') for c in df.columns if c.startswith('crop_')])
+    seasons = sorted([c.replace('season_', '') for c in df.columns if c.startswith('season_')])
+    
+    return states, crops, seasons

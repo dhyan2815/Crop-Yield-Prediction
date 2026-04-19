@@ -41,3 +41,16 @@
 
 **2026-04-19**
 - Fixed a `SyntaxError` in `utils/predictor.py` caused by an invalid walrus operator assignment (`:=`) within a comparison inside an `if` statement. Corrected the logic to directly check columns in `df_v1.columns`.
+**2026-04-19 (Special Edition)**
+- **Major Architecture Pivot**: Executed a ground-up rebuild of the entire project from zero percent to eliminate chronic "feature-mismatch" and "import-loop" bugs.
+- **Phase 1-4 (Data & ML)**: Provided 3 custom Google Colab notebooks to clean raw Kaggle data (~250k rows), engineer features for Top 15 crops at a State-level, and train a robust Random Forest champion model.
+- **The Contract**: Implemented `models/feature_columns.json` as a single-source-of-truth contract between training and inference. The app now dynamically aligns input features to this JSON, guaranteeing zero shape/name mismatches.
+- **Phase 5 (Full Script Rewrite)**:
+    - **`app.py`**: Rewrote as a modern 2026 Dashboard featuring a custom HTML "Prediction Card" and Plotly-based Trends.
+    - **`utils/predictor.py`**: implemented strict contract alignment and risk assessment logic.
+    - **`utils/data_loader.py`**: Switched to cached, contract-aware loading.
+    - **`scripts/config.py`**: Cleaned up legacy versioning; centralized Top 15 and 1997–2020 year ranges.
+- **New Feature**: Added a "Scenario Simulator" logic for interactive yield forecasting based on State vs. Season parameters.
+- **2026-04-19 (Bug Fix)**: Fixed `ModuleNotFoundError` for `plotly` in `utils/visualizations.py` (lines 3-4). Integrated defensive `try...except` imports and removed unused `matplotlib` to ensure app robustness. Also corrected a `KeyError` by renaming `state_name` to `state` in the historical chart logic. Installed missing `plotly` dependency.
+
+
