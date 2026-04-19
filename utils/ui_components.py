@@ -46,6 +46,21 @@ def apply_custom_css():
         color: var(--text-primary);
     }
 
+    /* Fix for Sidebar Background and Text */
+    [data-testid="stSidebar"] {
+        background-color: var(--bg-secondary) !important;
+        border-right: 1px solid var(--card-border);
+    }
+
+    [data-testid="stSidebar"] * {
+        color: var(--text-primary) !important;
+    }
+
+    /* Fix for Header Background */
+    header[data-testid="stHeader"] {
+        background-color: rgba(0,0,0,0) !important;
+    }
+
     h1, h2, h3, h4, h5, h6 { color: var(--text-primary) !important; font-weight: 600 !important; }
     p, span, div, label { color: var(--text-primary) !important; }
 
