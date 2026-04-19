@@ -61,6 +61,31 @@ def apply_custom_css():
         background-color: rgba(0,0,0,0) !important;
     }
 
+    /* Input Styling Fixes */
+    .stSelectbox div[data-baseweb="select"] {
+        background-color: var(--card-bg) !important;
+        border-radius: 8px;
+        border: 1px solid var(--card-border);
+    }
+    
+    .stSelectbox div[data-baseweb="select"] * {
+        color: var(--text-primary) !important;
+    }
+
+    .stSlider div[data-baseweb="slider"] {
+        background-color: transparent !important;
+    }
+
+    /* Target the dropdown menu itself */
+    div[data-baseweb="menu"] {
+        background-color: var(--card-bg) !important;
+        border: 1px solid var(--card-border) !important;
+    }
+    
+    div[data-baseweb="menu"] li {
+        color: var(--text-primary) !important;
+    }
+
     h1, h2, h3, h4, h5, h6 { color: var(--text-primary) !important; font-weight: 600 !important; }
     p, span, div, label { color: var(--text-primary) !important; }
 

@@ -55,9 +55,10 @@ def create_historical_chart(df, state, crop):
     fig.update_layout(
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
-        xaxis=dict(showgrid=False),
-        yaxis=dict(gridcolor='#E5E7EB'),
-        title_font=dict(size=18, family="Outfit, sans-serif"),
+        font=dict(color='#cbd5e1'),
+        xaxis=dict(showgrid=False, tickfont=dict(color='#cbd5e1')),
+        yaxis=dict(gridcolor='rgba(255,255,255,0.1)', tickfont=dict(color='#cbd5e1')),
+        title_font=dict(size=18, family="Outfit, sans-serif", color='#f1f5f9'),
         margin=dict(l=0, r=0, t=40, b=0)
     )
     
@@ -80,6 +81,7 @@ def create_comparison_chart(yield_current, yield_simulated):
         title="Baseline vs Simulation",
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
+        font=dict(color='#cbd5e1'),
         height=350,
         margin=dict(l=20, r=20, t=50, b=20)
     )
