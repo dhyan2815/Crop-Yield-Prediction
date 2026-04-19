@@ -53,6 +53,7 @@
 - **New Feature**: Added a "Scenario Simulator" logic for interactive yield forecasting based on State vs. Season parameters.
 - **2026-04-19 (Bug Fix)**: Fixed `ModuleNotFoundError` for `plotly` in `utils/visualizations.py` (lines 3-4). Integrated defensive `try...except` imports and removed unused `matplotlib` to ensure app robustness. Also corrected a `KeyError` by renaming `state_name` to `state` in the historical chart logic. Installed missing `plotly` dependency.
 - **2026-04-19 (Final Polish)**: Unified branding across `app.py`, `README.md`, and `ui_components.py` to **"Yield Metrics"**. Simplified data sourcing and UI footer for a cleaner production look.
+- **2026-04-20 (UI Architecture Shift)**: Replaced complex custom CSS with a **"Native-First"** theme architecture. Removed hardcoded hex colors and media queries, allowing Streamlit's native engine to handle Dark/Light mode switching flawlessly. Standardized HTML cards using safe `rgba` backgrounds for universal readability.
 
 
 
