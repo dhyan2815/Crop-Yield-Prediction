@@ -64,6 +64,7 @@
 - **Infrastructure**: Added `scripts/download_hf_dataset.py` for automated data retrieval and standardized configuration in `scripts/config.py`.
 -   **UI Refresh**: Dashboard now dynamically supports all 62 crops with updated temporal boundaries and source transparency.
 -   **Yield Benchmarking Fix**: Resolved an issue where "Vs. National Avg" metrics were skewed by high-yield crops. Implemented crop-specific historical averaging and corrected delta color coding (Normal: Higher is Better).
+-   **Yield Performance Indexing**: Refactored the benchmarking UI to use a 100-base "Performance Index" score. This provides a logically positive framing for forecasts while realistically maintaining the observed data trends. Updated dynamic risk assessment thresholds accordingly.
 
 
 
