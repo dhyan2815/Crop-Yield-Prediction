@@ -11,7 +11,16 @@ except ImportError:
 
 def display_prediction_card(yield_val, status, message):
     """Display a professional card for the prediction result using native theme colors."""
-    status_color = "#2D5A27" if status == "Healthy" else "#F59E0B" if status == "Moderate" else "#dc2626"
+    # Updated color mapping for dynamic status
+    color_map = {
+        "Optimal": "#10b981", # Green
+        "Healthy": "#2D5A27", # Deep Green
+        "Stable": "#3b82f6",  # Blue
+        "Moderate": "#F59E0B", # Amber
+        "Critical Low": "#dc2626", # Red
+        "Unknown": "#6b7280"   # Gray
+    }
+    status_color = color_map.get(status, "#6b7280")
     
     st.markdown(f"""
     <div class="prediction-card" style="border-left: 8px solid {status_color};">

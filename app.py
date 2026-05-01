@@ -75,7 +75,13 @@ def main():
     }
     
     prediction = predict_yield(model, contract, inputs)
-    status, risk_msg = get_risk_assessment(prediction, selected_crop)
+    
+    # Get Crop Average for benchmarking
+    crop_averages = get_crop_averages()
+    avg_yield = crop_averages.get(selected_crop, 0)
+    
+    # Dynamic Risk Assessment based on deviation from average
+    status, risk_msg = get_risk_assessment(prediction, selected_crop, avg_yield)
     
     # UI Layout for Results
     main_col, side_col = st.columns([2, 1])
@@ -87,7 +93,6 @@ def main():
         # Historical Trend
         st.subheader("📊 Historical Trajectory")
         # Load the original processing data for trends (if available)
-        # Assuming the user has 'cleaned.csv' in processed folder
         cleaned_path = os.path.join("data", "processed", "cleaned.csv")
         if os.path.exists(cleaned_path):
             cleaned_df = pd.read_csv(cleaned_path)
@@ -103,19 +108,20 @@ def main():
         st.subheader("💡 Insights")
         st.metric("Forecast Confidence", "High", help="Based on R² score from training.")
         
-        # Prediction vs Mean (Crop-Specific)
-        crop_averages = get_crop_averages()
-        if crop_averages and selected_crop in crop_averages:
-            avg_yield = crop_averages[selected_crop]
+        # Prediction vs Mean (Yield Indexing)
+        if avg_yield > 0:
+            yield_index = (prediction / avg_yield) * 100
             diff = prediction - avg_yield
+            
             st.metric(
-                label=f"Vs. National {selected_crop} Avg", 
-                value=f"{diff:+,.0f} kg/ha", 
-                delta=f"{(diff/avg_yield)*100:+.1f}%", 
-                delta_color="normal"
+                label="Yield Performance Index", 
+                value=f"{yield_index:.1f}", 
+                delta=f"{diff:+,.0f} kg/ha",
+                help=f"A score of 100 represents the national {selected_crop} average benchmark."
             )
+            st.caption(f"**Benchmark:** {avg_yield:,.0f} kg/ha ({selected_crop})")
         else:
-            st.info("Crop-specific benchmark unavailable.")
+            st.info("Performance index unavailable.")
 
     # Footer & Sources
     display_data_sources()
