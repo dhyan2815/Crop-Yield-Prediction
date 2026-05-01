@@ -62,7 +62,9 @@
 - **Pipeline Rebuild**: Developed `scripts/run_pipeline.py` to headlessly clean data, engineer features, and train the Random Forest champion model.
 - **Contract Update**: Generated a new `models/feature_columns.json` reflecting the expanded state and crop features (100 total features).
 - **Infrastructure**: Added `scripts/download_hf_dataset.py` for automated data retrieval and standardized configuration in `scripts/config.py`.
-- **UI Refresh**: Dashboard now dynamically supports all 62 crops with updated temporal boundaries and source transparency.
+-   **UI Refresh**: Dashboard now dynamically supports all 62 crops with updated temporal boundaries and source transparency.
+-   **Yield Benchmarking Fix**: Resolved an issue where "Vs. National Avg" metrics were skewed by high-yield crops. Implemented crop-specific historical averaging and corrected delta color coding (Normal: Higher is Better).
+
 
 
 
