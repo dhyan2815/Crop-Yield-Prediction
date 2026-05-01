@@ -3,7 +3,7 @@ import pandas as pd
 import os
 
 from scripts.config import YEAR_MIN, YEAR_MAX
-from utils.data_loader import load_model_and_contract, get_ui_options, load_reference_data
+from utils.data_loader import load_model_and_contract, get_ui_options, load_reference_data, get_crop_averages
 from utils.predictor import predict_yield, get_risk_assessment
 from utils.ui_components import apply_custom_css, display_header, display_footer, display_data_sources
 from utils.visualizations import display_prediction_card, create_historical_chart, create_comparison_chart
@@ -50,12 +50,6 @@ def main():
         st.markdown("### 🛠️ Prediction Engine")
         st.info("Core Logic: Random Forest Regressor")
         st.markdown(f"**Normalization Range:** {YEAR_MIN}—{YEAR_MAX}")
-
-    # ==========================================================================
-    # MAIN - SCENARIO SIMULATOR
-    # ==========================================================================
-    st.header("🧪 Scenario Simulator")
-    st.markdown("Adjust environmental factors to see how they impact predicted yield.")
 
     col1, col2, col3 = st.columns(3)
     
@@ -109,13 +103,19 @@ def main():
         st.subheader("💡 Insights")
         st.metric("Forecast Confidence", "High", help="Based on R² score from training.")
         
-        # Prediction vs Mean
-        ref_df = load_reference_data()
-        if not ref_df.empty:
-            avg_yield = ref_df['yield_kg_ha'].mean()
+        # Prediction vs Mean (Crop-Specific)
+        crop_averages = get_crop_averages()
+        if crop_averages and selected_crop in crop_averages:
+            avg_yield = crop_averages[selected_crop]
             diff = prediction - avg_yield
-            delta_color = "normal" if diff >= 0 else "inverse"
-            st.metric("Vs. National Avg", f"{diff:+,.0f} kg/ha", delta=f"{(diff/avg_yield)*100:+.1f}%", delta_color=delta_color)
+            st.metric(
+                label=f"Vs. National {selected_crop} Avg", 
+                value=f"{diff:+,.0f} kg/ha", 
+                delta=f"{(diff/avg_yield)*100:+.1f}%", 
+                delta_color="normal"
+            )
+        else:
+            st.info("Crop-specific benchmark unavailable.")
 
     # Footer & Sources
     display_data_sources()
