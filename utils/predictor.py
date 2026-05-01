@@ -36,12 +36,16 @@ def predict_yield(model, contract, inputs):
     prediction = model.predict(input_df)[0]
     return max(0, float(prediction)) # No negative yields
 
-def get_risk_assessment(yield_val, crop):
-    """Simple logic to assess if predicted yield is good/bad for that crop."""
-    # This is a placeholder for more advanced agronomic logic
-    if yield_val < 500:
-        return "Critical Low", "Severe risk of crop failure. Consider drought-resistant varieties."
-    elif yield_val < 2000:
-        return "Moderate", "Average yield expected. Ensure regular irrigation."
+def get_risk_assessment(yield_val, crop, avg_yield=0):
+    """Dynamic assessment based on deviation from crop-specific averages."""
+    if avg_yield <= 0:
+        return "Unknown", "Insufficient benchmark data for this crop."
+    
+    performance_ratio = (yield_val / avg_yield) * 100
+    
+    if performance_ratio < 75:
+        return "Critical Low", f"Yield is {100-performance_ratio:.1f}% below average. High risk of supply shortage."
+    elif performance_ratio < 110:
+        return "Stable", f"Yield is aligned with historical benchmarks ({performance_ratio:.1f}% performance)."
     else:
-        return "Healthy", "High yield trajectory. Optimal conditions predicted."
+        return "Optimal", f"Yield is {performance_ratio-100:.1f}% above average. Excellent production potential."

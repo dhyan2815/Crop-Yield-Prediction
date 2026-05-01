@@ -20,18 +20,11 @@ CONTRACT_PATH = os.path.join(MODEL_DIR, "feature_columns.json")
 # Target variable definition
 TARGET_COLUMN = "yield_kg_ha"
 
-# Metadata for UI
-TOP_15_CROPS = [
-    "Rice", "Maize", "Wheat", "Cotton(lint)", "Sugarcane", "Gram", "Arhar/Tur",
-    "Bajra", "Jowar", "Groundnut", "Urad", "Moong(Green Gram)", "Sesamum",
-    "Sunflower", "Castor seed"
-]
-
-# Year range (based on typical Kaggle India Crop Yield dataset)
-YEAR_MIN = 1997
-YEAR_MAX = 2020
+# Year range (based on the new dataset)
+YEAR_MIN = 2000
+YEAR_MAX = 2026
 
 # Data sourcing references for transparency
 APP_DATA_SOURCES = {
-    "Primary Dataset": "https://www.kaggle.com/datasets/akshatgupta7/crop-yield-in-indian-states-dataset"
+    "Primary Dataset": "https://huggingface.co/datasets/dhyann2815/india-crop-yield-prediction"
 }

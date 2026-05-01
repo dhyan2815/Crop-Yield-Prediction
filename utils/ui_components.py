@@ -47,7 +47,7 @@ def apply_custom_css():
 def display_header():
     """Display the application header."""
     st.title("🌾 Yield Metrics")
-    st.caption("Next-Gen Crop Yield Forecasting for Indian States using Machine Learning.")
+    st.caption("Crop Yield Forecasting for Indian States using Machine Learning.")
     st.info("This system uses a ground-up rebuild with a strict feature contract to ensure zero-mismatch predictions.")
 
 def display_footer():

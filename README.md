@@ -1,14 +1,15 @@
-# 🌾 Metrics
-**Next-Gen Indian Crop Yield Forecasting System**
+# 🌾 Yield Metrics
+**Indian Crop Yield Forecasting System**
 
 Yield Metrics is a professional-grade web application designed to predict and simulate crop yields across Indian states. Rebuilt from the ground up in April 2026, it features a "Contract-Based" machine learning architecture that guarantees zero interface mismatches and high-precision forecasting.
 
 ## 🌟 Key Features
 -   **Contract-Based Inference**: Uses a JSON-based "Feature Contract" (`models/feature_columns.json`) to perfectly align frontend inputs with ML model requirements.
 -   **Scenario Simulator**: Interactive sliders and dropdowns to simulate yield forecasts based on State, Crop, Year, and Season.
+-   **Yield Performance Indexing**: Intelligent benchmarking that converts forecasts into a "Performance Score" (100 = National Average) for more intuitive and positive insight analysis.
 -   **Premium Dashboard**: A modern, theme-aware UI (Light/Dark mode) with interactive Plotly visualizations.
 -   **Risk Assessment**: Real-time evaluation of yield health (Healthy, Moderate, or Critical) based on historical benchmarks.
--   **Historical Data Intelligence**: Deep-dive into 20+ years of Indian agricultural statistics (1997–2020).
+-   **Historical Data**: Deep-dive into 27 years of Indian agricultural statistics (2000–2026).
 
 ## 🛠️ Technology Stack
 -   **Frontend**: Streamlit with custom CSS (Glassmorphism & Interactive Cards)
@@ -21,7 +22,7 @@ The project follows a modular 2026-standard structure:
 -   `app.py`: Main entry point and Dashboard UI.
 -   `models/`: Contains the Champion Model (`model.pkl`) and the Feature Contract (`feature_columns.json`).
 -   `utils/`: Refactored modules for Prediction engine, Data Loading, and UI Components.
--   `scripts/`: Configuration and project metadata.
+-   `scripts/`: Configuration and project metadata (including automated data downloaders).
 -   `data/`: Version-controlled datasets (Raw & Processed).
 
 ## 🚀 Getting Started
@@ -43,7 +44,7 @@ This project implements a unique architectural pattern to eliminate common "shap
 
 ## 📈 Data Sources
 Our intelligence is powered by high-granularity Indian agricultural data:
--   **Kaggle India Crop Yield Dataset** (1997–2020)
+-   **Hugging Face India Crop Yield Dataset** (2000–2026) - [dhyann2815/india-crop-yield-prediction](https://huggingface.co/datasets/dhyann2815/india-crop-yield-prediction)
 -   **Agricultural Statistics at a Glance**
 
 ---

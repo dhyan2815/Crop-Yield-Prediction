@@ -42,3 +42,16 @@ def get_ui_options():
     seasons = sorted([c.replace('season_', '') for c in df.columns if c.startswith('season_')])
     
     return states, crops, seasons
+
+@st.cache_data
+def get_crop_averages():
+    """Calculate the national average yield for every crop type."""
+    try:
+        cleaned_path = os.path.join("data", "processed", "cleaned.csv")
+        if not os.path.exists(cleaned_path):
+            return {}
+        df = pd.read_csv(cleaned_path)
+        return df.groupby('crop')['yield_kg_ha'].mean().to_dict()
+    except Exception as e:
+        st.error(f"Failed to calculate crop averages: {e}")
+        return {}
