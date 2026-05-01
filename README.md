@@ -6,6 +6,7 @@ Yield Metrics is a professional-grade web application designed to predict and si
 ## 🌟 Key Features
 -   **Contract-Based Inference**: Uses a JSON-based "Feature Contract" (`models/feature_columns.json`) to perfectly align frontend inputs with ML model requirements.
 -   **Scenario Simulator**: Interactive sliders and dropdowns to simulate yield forecasts based on State, Crop, Year, and Season.
+-   **Crop Benchmarking**: Intelligent "Vs. National Avg" insights that compare forecasts against crop-specific historical baselines.
 -   **Premium Dashboard**: A modern, theme-aware UI (Light/Dark mode) with interactive Plotly visualizations.
 -   **Risk Assessment**: Real-time evaluation of yield health (Healthy, Moderate, or Critical) based on historical benchmarks.
 -   **Historical Data**: Deep-dive into 27 years of Indian agricultural statistics (2000–2026).
