@@ -7,11 +7,16 @@ from scripts.config import MODEL_PATH, CONTRACT_PATH, FEATURES_DATA_PATH
 
 @st.cache_resource
 def load_model_and_contract():
-    """Load the trained model and the feature contract JSON."""
+    """Load the trained model and the feature contract (metadata-driven)."""
     try:
         model = joblib.load(MODEL_PATH)
         with open(CONTRACT_PATH, 'r') as f:
             contract = json.load(f)
+        
+        # Backward compatibility for old list-based contracts
+        if isinstance(contract, list):
+            contract = {"features": contract, "target_transform": None}
+            
         return model, contract
     except Exception as e:
         st.error(f"Failed to load AI model or contract: {e}")
