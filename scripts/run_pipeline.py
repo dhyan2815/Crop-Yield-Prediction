@@ -1,4 +1,3 @@
-# scripts/run_pipeline.py
 import pandas as pd
 import numpy as np
 import json
@@ -63,30 +62,40 @@ X = df_encoded.drop(columns=['yield_kg_ha', 'crop_year'])
 
 feature_cols = X.columns.tolist()
 os.makedirs('models', exist_ok=True)
+# Save metadata-enhanced contract
+contract = {
+    "features": feature_cols,
+    "target_transform": "log1p"
+}
 with open('models/feature_columns.json', 'w') as f:
-    json.dump(feature_cols, f)
+    json.dump(contract, f)
 
 os.makedirs('data/features', exist_ok=True)
 df_final = pd.concat([X, y], axis=1)
 df_final.to_csv('data/features/features.csv', index=False)
 print(f"Saved features.csv & feature_columns.json ({len(feature_cols)} features)")
 
-print("3. MODEL TRAINING...")
+print("3. MODEL TRAINING (Log-Scale)...")
 df = pd.read_csv('data/features/features.csv')
 X = df.drop(columns=['yield_kg_ha'])
-y = df['yield_kg_ha']
+y = np.log1p(df['yield_kg_ha']) # Applying Log-Transform for robustness
+
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
 print(f"Training on {len(X_train)} samples...")
-model = RandomForestRegressor(n_estimators=100, max_depth=15, n_jobs=-1, random_state=42)
+model = RandomForestRegressor(n_estimators=200, max_depth=None, n_jobs=-1, random_state=42)
 model.fit(X_train, y_train)
 
-preds = model.predict(X_test)
-print("--- MODEL PERFORMANCE ---")
-print(f"R-squared Score: {r2_score(y_test, preds):.4f}")
-print(f"Mean Absolute Error: {mean_absolute_error(y_test, preds):.2f} kg/ha")
+# Evaluate on original scale
+preds_log = model.predict(X_test)
+preds = np.expm1(preds_log)
+y_actual = np.expm1(y_test)
+
+print("--- MODEL PERFORMANCE (Original Scale) ---")
+print(f"R-squared Score: {r2_score(y_actual, preds):.4f}")
+print(f"Mean Absolute Error: {mean_absolute_error(y_actual, preds):.2f} kg/ha")
 
 joblib.dump(model, 'models/model.pkl')
-print("Saved model.pkl")
+print("Saved models/model.pkl")
 
 print("--- PIPELINE COMPLETE ---")
