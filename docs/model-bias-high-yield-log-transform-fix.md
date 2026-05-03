@@ -1,4 +1,4 @@
-# Issue: Model Bias Towards high-yield crops 
+# Issue: Model Bias Towards 'High-Yield' Crop Features
 
 *03/05/2026*
 
