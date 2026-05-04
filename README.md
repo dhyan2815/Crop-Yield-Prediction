@@ -1,3 +1,15 @@
+---
+title: Yield Metrics
+emoji: 🌾
+colorFrom: green
+colorTo: yellow
+sdk: streamlit
+sdk_version: 1.48.1
+app_file: app.py
+pinned: false
+license: mit
+---
+
 # 🌾 Yield Metrics
 **Indian Crop Yield Forecasting System**
 
