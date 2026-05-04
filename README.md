@@ -54,7 +54,14 @@ streamlit run app.py
 ## 📊 The "Contract" Pattern
 This project implements a unique architectural pattern to eliminate common "shape mismatch" errors in ML deployments. The `models/feature_columns.json` file serves as a single source of truth. The prediction engine dynamically builds input vectors to match this contract, allowing for a flexible and crash-proof user experience.
 
-## 📈 Data Sources
+## 📈 Deployment & Data
+The project is live and synchronized across major AI platforms:
+
+-   **Hugging Face Space**: [Live Dashboard](https://huggingface.co/spaces/dhyann2815/Crop-Yield-Prediction)
+-   **Hugging Face Dataset**: [India Crop Yield Dataset (2000–2026)](https://huggingface.co/datasets/dhyann2815/india-crop-yield-prediction)
+-   **GitHub Repository**: [Source Code](https://github.com/dhyan2815/Crop-Yield-Prediction)
+
+### Data Sources
 Our intelligence is powered by high-granularity Indian agricultural data:
 -   **Hugging Face India Crop Yield Dataset** (2000–2026) - [dhyann2815/india-crop-yield-prediction](https://huggingface.co/datasets/dhyann2815/india-crop-yield-prediction)
 -   **Agricultural Statistics at a Glance**
