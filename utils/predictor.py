@@ -1,11 +1,22 @@
 import pandas as pd
 import numpy as np
+import warnings
 from scripts.config import YEAR_MIN, YEAR_MAX
+
+# Maximum physically plausible yield in log-space:
+# log1p(150000) ≈ 11.92. We use 13.0 as a generous ceiling.
+# Any raw model output above this means the model was NOT trained with log-transform.
+_LOG_SPACE_MAX = 13.0
 
 def predict_yield(model, contract, inputs):
     """
     Robust prediction function that aligns input to the training contract.
     Uses metadata to handle inverse transformations dynamically.
+
+    Safety layers (in order):
+      1. Log-space ceiling guard — catches stale models not trained with log1p.
+      2. nan_to_num — converts any remaining NaN/inf to bounded floats.
+      3. max(0, ...) — ensures physically non-negative yield output.
     """
     features = contract.get('features', [])
     transform = contract.get('target_transform', None)
@@ -31,14 +42,31 @@ def predict_yield(model, contract, inputs):
     input_df = pd.DataFrame([row])
     input_df = input_df[features] 
     
-    # 5. Predict and Handle Inverse Transform
+    # 5. Predict
     prediction = model.predict(input_df)[0]
-    
+
+    # 6. Inverse Transform — with log-space ceiling guard
     if transform == "log1p":
-        prediction = np.expm1(prediction)
+        # Guard: if prediction is > _LOG_SPACE_MAX, the model was likely trained
+        # WITHOUT log-transform (stale model / contract mismatch).
+        # np.expm1(values > ~710) overflows float64 to +inf silently.
+        if prediction > _LOG_SPACE_MAX:
+            warnings.warn(
+                f"[predictor] Log-space prediction {prediction:.2f} exceeds safe ceiling "
+                f"({_LOG_SPACE_MAX}). This strongly indicates the saved model.pkl was "
+                f"NOT trained with log1p. The contract says target_transform='log1p' but "
+                f"the model appears to output raw kg/ha. "
+                f"ACTION REQUIRED: Re-run scripts/run_pipeline.py to retrain the model.",
+                RuntimeWarning, stacklevel=2
+            )
+            # Best-effort: treat the raw value as the actual yield (no expm1)
+            # and cap it at the dataset ceiling from run_pipeline.py (100,000 kg/ha)
+            prediction = min(float(prediction), 100000.0)
+        else:
+            prediction = np.expm1(prediction)
     
-    # 6. Safety Clipping (Prevent inf/NaN and impossible values)
-    prediction = np.nan_to_num(prediction, nan=0.0, posinf=100000.0)
+    # 7. Safety Clipping (Prevent inf/NaN and impossible values)
+    prediction = np.nan_to_num(prediction, nan=0.0, posinf=100000.0, neginf=0.0)
     return max(0, float(prediction))
 
 def get_risk_assessment(yield_val, crop, avg_yield=0):

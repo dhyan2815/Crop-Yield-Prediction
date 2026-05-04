@@ -2,6 +2,14 @@
 
 ## Changelog
 
+**2026-05-04 (Static Prediction Bug - Root Cause & Fix)**
+- **Investigated** the static 100,000 kg/ha prediction reported by user. Root cause identified via `scripts/diagnose_model.py`.
+- **Root Cause**: `model.pkl` on disk was a stale artifact trained WITHOUT the `log1p` transform. However, `feature_columns.json` declared `"target_transform": "log1p"`. This caused `predictor.py` to call `np.expm1(1221.9)` = `+inf`, which the safety clip on L41 correctly caught and mapped to `100,000.0`. The 100k value was always the `posinf` guard firing, not a valid prediction.
+- **Evidence**: Model's raw log-space output was `~1221.9` (valid range: 7.0–11.9). Zero-importance count: 47 crops. Sugarcane dominated at 55.67% importance — identical model bias as the original pre-fix problem.
+- **Fix 1 (Immediate Hardening)**: Added a `_LOG_SPACE_MAX = 13.0` ceiling guard in `utils/predictor.py` before `np.expm1()`. If the model output exceeds this ceiling, a `RuntimeWarning` is raised and the value is used as-is (treating it as raw kg/ha capped at 100,000). Also added `neginf=0.0` to `nan_to_num` call.
+- **Fix 2 (Model Retrain)**: Re-executed `scripts/run_pipeline.py`. New model trained correctly with `np.log1p()` on the target. R²=0.9670, MAE=666 kg/ha.
+- **Verified**: Post-retrain diagnostics confirm correct predictions: Rice/WB=3,532 kg/ha, Wheat/Punjab=4,623 kg/ha, Sugarcane/UP=79,787 kg/ha. Year sensitivity restored (2000→2026 trend visible). Zero dead-importance features remaining.
+
 **2026-04-09**
 - Implemented **Task 1 of the Optimization Plan**: Created `utils` package and `utils/data_loader.py`.
 - Extracted and centralized data loading logic, model loading, and dataset statistics into the new `utils/data_loader.py` utility.
