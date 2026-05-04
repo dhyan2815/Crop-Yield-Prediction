@@ -95,7 +95,7 @@ print("--- MODEL PERFORMANCE (Original Scale) ---")
 print(f"R-squared Score: {r2_score(y_actual, preds):.4f}")
 print(f"Mean Absolute Error: {mean_absolute_error(y_actual, preds):.2f} kg/ha")
 
-joblib.dump(model, 'models/model.pkl')
-print("Saved models/model.pkl")
+joblib.dump(model, 'models/model.pkl', compress=3)
+print("Saved models/model.pkl (compressed)")
 
 print("--- PIPELINE COMPLETE ---")
