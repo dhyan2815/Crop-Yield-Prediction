@@ -1,0 +1,1387 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "Crop-Yield-Prediction",
+    "languages": [
+      "csv",
+      "json",
+      "markdown",
+      "plaintext",
+      "python",
+      "yaml"
+    ],
+    "frameworks": [
+      "streamlit",
+      "scikit-learn"
+    ],
+    "description": "Auto-generated isolated knowledge graph (README-equivalent compatibility run).",
+    "analyzedAt": "2026-05-18T13:14:20.192Z",
+    "gitCommitHash": "unknown"
+  },
+  "nodes": [
+    {
+      "id": "document:.agents/skills/security-review/checklist.md",
+      "type": "document",
+      "name": "checklist.md",
+      "filePath": ".agents/skills/security-review/checklist.md",
+      "summary": "document file .agents/skills/security-review/checklist.md",
+      "tags": [
+        "document",
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:.agents/skills/security-review/SKILL.md",
+      "type": "document",
+      "name": "SKILL.md",
+      "filePath": ".agents/skills/security-review/SKILL.md",
+      "summary": "document file .agents/skills/security-review/SKILL.md",
+      "tags": [
+        "document",
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.devcontainer/devcontainer.json",
+      "type": "config",
+      "name": "devcontainer.json",
+      "filePath": ".devcontainer/devcontainer.json",
+      "summary": "config file .devcontainer/devcontainer.json",
+      "tags": [
+        "config",
+        "json"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.github/workflows/sync-to-hub.yml",
+      "type": "config",
+      "name": "sync-to-hub.yml",
+      "filePath": ".github/workflows/sync-to-hub.yml",
+      "summary": "config file .github/workflows/sync-to-hub.yml",
+      "tags": [
+        "config",
+        "yaml"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:.gitignore",
+      "type": "config",
+      "name": ".gitignore",
+      "filePath": ".gitignore",
+      "summary": "config file .gitignore",
+      "tags": [
+        "config",
+        "text"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:app.py",
+      "type": "file",
+      "name": "app.py",
+      "filePath": "app.py",
+      "summary": "code file app.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:app.py:main",
+      "type": "function",
+      "name": "main",
+      "filePath": "app.py",
+      "lineRange": [
+        24,
+        128
+      ],
+      "summary": "Function main in app.py",
+      "tags": [],
+      "complexity": "moderate"
+    },
+    {
+      "id": "resource:data/features/features.csv",
+      "type": "resource",
+      "name": "features.csv",
+      "filePath": "data/features/features.csv",
+      "summary": "data file data/features/features.csv",
+      "tags": [
+        "data",
+        "csv"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "resource:data/processed/cleaned.csv",
+      "type": "resource",
+      "name": "cleaned.csv",
+      "filePath": "data/processed/cleaned.csv",
+      "summary": "data file data/processed/cleaned.csv",
+      "tags": [
+        "data",
+        "csv"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "resource:data/raw/india_crop_yield.csv",
+      "type": "resource",
+      "name": "india_crop_yield.csv",
+      "filePath": "data/raw/india_crop_yield.csv",
+      "summary": "data file data/raw/india_crop_yield.csv",
+      "tags": [
+        "data",
+        "csv"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "document:docs/deployment-brainstorming.md",
+      "type": "document",
+      "name": "deployment-brainstorming.md",
+      "filePath": "docs/deployment-brainstorming.md",
+      "summary": "document file docs/deployment-brainstorming.md",
+      "tags": [
+        "document",
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:docs/model-bias-high-yield-log-transform-fix.md",
+      "type": "document",
+      "name": "model-bias-high-yield-log-transform-fix.md",
+      "filePath": "docs/model-bias-high-yield-log-transform-fix.md",
+      "summary": "document file docs/model-bias-high-yield-log-transform-fix.md",
+      "tags": [
+        "document",
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:GEMINI.md",
+      "type": "document",
+      "name": "GEMINI.md",
+      "filePath": "GEMINI.md",
+      "summary": "document file GEMINI.md",
+      "tags": [
+        "document",
+        "markdown"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "config:models/feature_columns.json",
+      "type": "config",
+      "name": "feature_columns.json",
+      "filePath": "models/feature_columns.json",
+      "summary": "config file models/feature_columns.json",
+      "tags": [
+        "config",
+        "json"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "document file README.md",
+      "tags": [
+        "document",
+        "markdown"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "document:requirements.txt",
+      "type": "document",
+      "name": "requirements.txt",
+      "filePath": "requirements.txt",
+      "summary": "document file requirements.txt",
+      "tags": [
+        "document",
+        "plaintext"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/audit_dataset.py",
+      "type": "file",
+      "name": "audit_dataset.py",
+      "filePath": "scripts/audit_dataset.py",
+      "summary": "code file scripts/audit_dataset.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:scripts/config.py",
+      "type": "file",
+      "name": "config.py",
+      "filePath": "scripts/config.py",
+      "summary": "code file scripts/config.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/diagnose_model.py",
+      "type": "file",
+      "name": "diagnose_model.py",
+      "filePath": "scripts/diagnose_model.py",
+      "summary": "code file scripts/diagnose_model.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/diagnose_model.py:predict_yield",
+      "type": "function",
+      "name": "predict_yield",
+      "filePath": "scripts/diagnose_model.py",
+      "lineRange": [
+        29,
+        66
+      ],
+      "summary": "Function predict_yield in scripts/diagnose_model.py",
+      "tags": [],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:scripts/download_hf_dataset.py",
+      "type": "file",
+      "name": "download_hf_dataset.py",
+      "filePath": "scripts/download_hf_dataset.py",
+      "summary": "code file scripts/download_hf_dataset.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:scripts/run_pipeline.py",
+      "type": "file",
+      "name": "run_pipeline.py",
+      "filePath": "scripts/run_pipeline.py",
+      "summary": "code file scripts/run_pipeline.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:scripts/run_pipeline.py:find_col",
+      "type": "function",
+      "name": "find_col",
+      "filePath": "scripts/run_pipeline.py",
+      "lineRange": [
+        11,
+        13
+      ],
+      "summary": "Function find_col in scripts/run_pipeline.py",
+      "tags": [],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:scripts/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "scripts/__init__.py",
+      "summary": "code file scripts/__init__.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:tests/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "tests/__init__.py",
+      "summary": "code file tests/__init__.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:utils/data_loader.py",
+      "type": "file",
+      "name": "data_loader.py",
+      "filePath": "utils/data_loader.py",
+      "summary": "code file utils/data_loader.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:utils/data_loader.py:load_model_and_contract",
+      "type": "function",
+      "name": "load_model_and_contract",
+      "filePath": "utils/data_loader.py",
+      "lineRange": [
+        9,
+        23
+      ],
+      "summary": "Function load_model_and_contract in utils/data_loader.py",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:utils/data_loader.py:load_reference_data",
+      "type": "function",
+      "name": "load_reference_data",
+      "filePath": "utils/data_loader.py",
+      "lineRange": [
+        26,
+        35
+      ],
+      "summary": "Function load_reference_data in utils/data_loader.py",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:utils/data_loader.py:get_ui_options",
+      "type": "function",
+      "name": "get_ui_options",
+      "filePath": "utils/data_loader.py",
+      "lineRange": [
+        38,
+        49
+      ],
+      "summary": "Function get_ui_options in utils/data_loader.py",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:utils/data_loader.py:get_crop_averages",
+      "type": "function",
+      "name": "get_crop_averages",
+      "filePath": "utils/data_loader.py",
+      "lineRange": [
+        52,
+        62
+      ],
+      "summary": "Function get_crop_averages in utils/data_loader.py",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:utils/predictor.py",
+      "type": "file",
+      "name": "predictor.py",
+      "filePath": "utils/predictor.py",
+      "summary": "code file utils/predictor.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:utils/predictor.py:predict_yield",
+      "type": "function",
+      "name": "predict_yield",
+      "filePath": "utils/predictor.py",
+      "lineRange": [
+        11,
+        70
+      ],
+      "summary": "Function predict_yield in utils/predictor.py",
+      "tags": [],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:utils/predictor.py:get_risk_assessment",
+      "type": "function",
+      "name": "get_risk_assessment",
+      "filePath": "utils/predictor.py",
+      "lineRange": [
+        72,
+        84
+      ],
+      "summary": "Function get_risk_assessment in utils/predictor.py",
+      "tags": [],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:utils/ui_components.py",
+      "type": "file",
+      "name": "ui_components.py",
+      "filePath": "utils/ui_components.py",
+      "summary": "code file utils/ui_components.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:utils/ui_components.py:apply_custom_css",
+      "type": "function",
+      "name": "apply_custom_css",
+      "filePath": "utils/ui_components.py",
+      "lineRange": [
+        4,
+        45
+      ],
+      "summary": "Function apply_custom_css in utils/ui_components.py",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:utils/ui_components.py:display_header",
+      "type": "function",
+      "name": "display_header",
+      "filePath": "utils/ui_components.py",
+      "lineRange": [
+        47,
+        51
+      ],
+      "summary": "Function display_header in utils/ui_components.py",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:utils/ui_components.py:display_footer",
+      "type": "function",
+      "name": "display_footer",
+      "filePath": "utils/ui_components.py",
+      "lineRange": [
+        53,
+        61
+      ],
+      "summary": "Function display_footer in utils/ui_components.py",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:utils/ui_components.py:display_data_sources",
+      "type": "function",
+      "name": "display_data_sources",
+      "filePath": "utils/ui_components.py",
+      "lineRange": [
+        63,
+        69
+      ],
+      "summary": "Function display_data_sources in utils/ui_components.py",
+      "tags": [],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:utils/visualizations.py",
+      "type": "file",
+      "name": "visualizations.py",
+      "filePath": "utils/visualizations.py",
+      "summary": "code file utils/visualizations.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:utils/visualizations.py:display_prediction_card",
+      "type": "function",
+      "name": "display_prediction_card",
+      "filePath": "utils/visualizations.py",
+      "lineRange": [
+        12,
+        37
+      ],
+      "summary": "Function display_prediction_card in utils/visualizations.py",
+      "tags": [],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:utils/visualizations.py:create_historical_chart",
+      "type": "function",
+      "name": "create_historical_chart",
+      "filePath": "utils/visualizations.py",
+      "lineRange": [
+        40,
+        71
+      ],
+      "summary": "Function create_historical_chart in utils/visualizations.py",
+      "tags": [],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:utils/visualizations.py:create_comparison_chart",
+      "type": "function",
+      "name": "create_comparison_chart",
+      "filePath": "utils/visualizations.py",
+      "lineRange": [
+        73,
+        94
+      ],
+      "summary": "Function create_comparison_chart in utils/visualizations.py",
+      "tags": [],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:utils/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "utils/__init__.py",
+      "summary": "code file utils/__init__.py",
+      "tags": [
+        "code",
+        "python"
+      ],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:app.py",
+      "target": "function:app.py:main",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:display_header",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:load_model_and_contract",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.error",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:get_ui_options",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.header",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.selectbox",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.divider",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.markdown",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.info",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.columns",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.slider",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.caption",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:predict_yield",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:get_crop_averages",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:crop_averages.get",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:get_risk_assessment",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:display_prediction_card",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.subheader",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:os.path.join",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:os.path.exists",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:pd.read_csv",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:create_historical_chart",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.plotly_chart",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.warning",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:st.metric",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:display_data_sources",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:app.py:main",
+      "target": "function:app.py:display_footer",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/diagnose_model.py",
+      "target": "function:scripts/diagnose_model.py:predict_yield",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:scripts/diagnose_model.py:predict_yield",
+      "target": "function:scripts/diagnose_model.py:inputs.get",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:scripts/diagnose_model.py:predict_yield",
+      "target": "function:scripts/diagnose_model.py:pd.DataFrame",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:scripts/diagnose_model.py:predict_yield",
+      "target": "function:scripts/diagnose_model.py:model.predict",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:scripts/diagnose_model.py:predict_yield",
+      "target": "function:scripts/diagnose_model.py:np.expm1",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:scripts/diagnose_model.py:predict_yield",
+      "target": "function:scripts/diagnose_model.py:np.nan_to_num",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:scripts/diagnose_model.py:predict_yield",
+      "target": "function:scripts/diagnose_model.py:max",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:scripts/diagnose_model.py:predict_yield",
+      "target": "function:scripts/diagnose_model.py:float",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:scripts/diagnose_model.py:predict_yield",
+      "target": "function:scripts/diagnose_model.py:print",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:scripts/run_pipeline.py",
+      "target": "function:scripts/run_pipeline.py:find_col",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:scripts/run_pipeline.py:find_col",
+      "target": "function:scripts/run_pipeline.py:col.lower",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:utils/data_loader.py",
+      "target": "function:utils/data_loader.py:load_model_and_contract",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:utils/data_loader.py",
+      "target": "function:utils/data_loader.py:load_reference_data",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:utils/data_loader.py",
+      "target": "function:utils/data_loader.py:get_ui_options",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:utils/data_loader.py",
+      "target": "function:utils/data_loader.py:get_crop_averages",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:utils/data_loader.py:load_model_and_contract",
+      "target": "function:utils/data_loader.py:joblib.load",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:load_model_and_contract",
+      "target": "function:utils/data_loader.py:open",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:load_model_and_contract",
+      "target": "function:utils/data_loader.py:json.load",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:load_model_and_contract",
+      "target": "function:utils/data_loader.py:isinstance",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:load_model_and_contract",
+      "target": "function:utils/data_loader.py:st.error",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:load_reference_data",
+      "target": "function:utils/data_loader.py:os.path.exists",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:load_reference_data",
+      "target": "function:utils/data_loader.py:pd.DataFrame",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:load_reference_data",
+      "target": "function:utils/data_loader.py:pd.read_csv",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:load_reference_data",
+      "target": "function:utils/data_loader.py:st.error",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_ui_options",
+      "target": "function:utils/data_loader.py:load_reference_data",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_ui_options",
+      "target": "function:utils/data_loader.py:sorted",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_ui_options",
+      "target": "function:utils/data_loader.py:c.replace",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_ui_options",
+      "target": "function:utils/data_loader.py:c.startswith",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_crop_averages",
+      "target": "function:utils/data_loader.py:os.path.join",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_crop_averages",
+      "target": "function:utils/data_loader.py:os.path.exists",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_crop_averages",
+      "target": "function:utils/data_loader.py:pd.read_csv",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_crop_averages",
+      "target": "function:utils/data_loader.py:df.groupby('crop')['yield_kg_ha'].mean().to_dict",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_crop_averages",
+      "target": "function:utils/data_loader.py:df.groupby('crop')['yield_kg_ha'].mean",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_crop_averages",
+      "target": "function:utils/data_loader.py:df.groupby",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/data_loader.py:get_crop_averages",
+      "target": "function:utils/data_loader.py:st.error",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:utils/predictor.py",
+      "target": "function:utils/predictor.py:predict_yield",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:utils/predictor.py",
+      "target": "function:utils/predictor.py:get_risk_assessment",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:contract.get",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:inputs.get",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:pd.DataFrame",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:model.predict",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:warnings.warn",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:min",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:float",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:np.expm1",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:np.nan_to_num",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/predictor.py:predict_yield",
+      "target": "function:utils/predictor.py:max",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:utils/ui_components.py",
+      "target": "function:utils/ui_components.py:apply_custom_css",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:utils/ui_components.py",
+      "target": "function:utils/ui_components.py:display_header",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:utils/ui_components.py",
+      "target": "function:utils/ui_components.py:display_footer",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:utils/ui_components.py",
+      "target": "function:utils/ui_components.py:display_data_sources",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:utils/ui_components.py:apply_custom_css",
+      "target": "function:utils/ui_components.py:st.markdown",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/ui_components.py:display_header",
+      "target": "function:utils/ui_components.py:st.title",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/ui_components.py:display_header",
+      "target": "function:utils/ui_components.py:st.caption",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/ui_components.py:display_header",
+      "target": "function:utils/ui_components.py:st.info",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/ui_components.py:display_footer",
+      "target": "function:utils/ui_components.py:st.divider",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/ui_components.py:display_footer",
+      "target": "function:utils/ui_components.py:st.markdown",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/ui_components.py:display_data_sources",
+      "target": "function:utils/ui_components.py:st.divider",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/ui_components.py:display_data_sources",
+      "target": "function:utils/ui_components.py:st.header",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/ui_components.py:display_data_sources",
+      "target": "function:utils/ui_components.py:st.markdown",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/ui_components.py:display_data_sources",
+      "target": "function:utils/ui_components.py:APP_DATA_SOURCES.items",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:utils/visualizations.py",
+      "target": "function:utils/visualizations.py:display_prediction_card",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:utils/visualizations.py",
+      "target": "function:utils/visualizations.py:create_historical_chart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:utils/visualizations.py",
+      "target": "function:utils/visualizations.py:create_comparison_chart",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "function:utils/visualizations.py:display_prediction_card",
+      "target": "function:utils/visualizations.py:color_map.get",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:display_prediction_card",
+      "target": "function:utils/visualizations.py:st.markdown",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:create_historical_chart",
+      "target": "function:utils/visualizations.py:st.warning",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:create_historical_chart",
+      "target": "function:utils/visualizations.py:df[mask].sort_values",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:create_historical_chart",
+      "target": "function:utils/visualizations.py:px.area",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:create_historical_chart",
+      "target": "function:utils/visualizations.py:fig.update_layout",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:create_historical_chart",
+      "target": "function:utils/visualizations.py:dict",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:create_comparison_chart",
+      "target": "function:utils/visualizations.py:go.Figure",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:create_comparison_chart",
+      "target": "function:utils/visualizations.py:go.Bar",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:create_comparison_chart",
+      "target": "function:utils/visualizations.py:fig.update_layout",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "function:utils/visualizations.py:create_comparison_chart",
+      "target": "function:utils/visualizations.py:dict",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:core",
+      "name": "Core",
+      "description": "Core application files",
+      "nodeIds": [
+        "file:app.py",
+        "file:scripts/audit_dataset.py",
+        "file:scripts/config.py",
+        "file:scripts/diagnose_model.py",
+        "file:scripts/download_hf_dataset.py",
+        "file:scripts/run_pipeline.py",
+        "file:scripts/__init__.py"
+      ]
+    },
+    {
+      "id": "layer:test-layer",
+      "name": "Test Layer",
+      "description": "Test files and test utilities",
+      "nodeIds": [
+        "file:tests/__init__.py"
+      ]
+    },
+    {
+      "id": "layer:utility-layer",
+      "name": "Utility Layer",
+      "description": "Shared utilities, helpers, and common libraries",
+      "nodeIds": [
+        "file:utils/data_loader.py",
+        "file:utils/predictor.py",
+        "file:utils/ui_components.py",
+        "file:utils/visualizations.py",
+        "file:utils/__init__.py"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Core",
+      "description": "Core application files. Key files: app.py, audit_dataset.py, config.py, diagnose_model.py, download_hf_dataset.py, run_pipeline.py, __init__.py.",
+      "nodeIds": [
+        "file:app.py",
+        "file:scripts/audit_dataset.py",
+        "file:scripts/config.py",
+        "file:scripts/diagnose_model.py",
+        "file:scripts/download_hf_dataset.py",
+        "file:scripts/run_pipeline.py",
+        "file:scripts/__init__.py"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Test Layer",
+      "description": "Test files and test utilities. Key files: __init__.py.",
+      "nodeIds": [
+        "file:tests/__init__.py"
+      ]
+    },
+    {
+      "order": 3,
+      "title": "Utility Layer",
+      "description": "Shared utilities, helpers, and common libraries. Key files: data_loader.py, predictor.py, ui_components.py, visualizations.py, __init__.py.",
+      "nodeIds": [
+        "file:utils/data_loader.py",
+        "file:utils/predictor.py",
+        "file:utils/ui_components.py",
+        "file:utils/visualizations.py",
+        "file:utils/__init__.py"
+      ]
+    },
+    {
+      "order": 4,
+      "title": "Supporting Components",
+      "description": "Additional supporting files: checklist.md, SKILL.md, devcontainer.json, sync-to-hub.yml, .gitignore, features.csv, cleaned.csv, india_crop_yield.csv, deployment-brainstorming.md, model-bias-high-yield-log-transform-fix.md, GEMINI.md, feature_columns.json, README.md, requirements.txt, main, predict_yield, find_col, load_model_and_contract, get_ui_options, get_crop_averages, predict_yield, get_risk_assessment, apply_custom_css, display_header, display_footer, display_data_sources, display_prediction_card, create_historical_chart, create_comparison_chart, load_reference_data.",
+      "nodeIds": [
+        "document:.agents/skills/security-review/checklist.md",
+        "document:.agents/skills/security-review/SKILL.md",
+        "config:.devcontainer/devcontainer.json",
+        "config:.github/workflows/sync-to-hub.yml",
+        "config:.gitignore",
+        "resource:data/features/features.csv",
+        "resource:data/processed/cleaned.csv",
+        "resource:data/raw/india_crop_yield.csv",
+        "document:docs/deployment-brainstorming.md",
+        "document:docs/model-bias-high-yield-log-transform-fix.md",
+        "document:GEMINI.md",
+        "config:models/feature_columns.json",
+        "document:README.md",
+        "document:requirements.txt",
+        "function:app.py:main",
+        "function:scripts/diagnose_model.py:predict_yield",
+        "function:scripts/run_pipeline.py:find_col",
+        "function:utils/data_loader.py:load_model_and_contract",
+        "function:utils/data_loader.py:get_ui_options",
+        "function:utils/data_loader.py:get_crop_averages",
+        "function:utils/predictor.py:predict_yield",
+        "function:utils/predictor.py:get_risk_assessment",
+        "function:utils/ui_components.py:apply_custom_css",
+        "function:utils/ui_components.py:display_header",
+        "function:utils/ui_components.py:display_footer",
+        "function:utils/ui_components.py:display_data_sources",
+        "function:utils/visualizations.py:display_prediction_card",
+        "function:utils/visualizations.py:create_historical_chart",
+        "function:utils/visualizations.py:create_comparison_chart",
+        "function:utils/data_loader.py:load_reference_data"
+      ]
+    }
+  ]
+}
