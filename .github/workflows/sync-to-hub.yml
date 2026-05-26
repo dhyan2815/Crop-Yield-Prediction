@@ -6,6 +6,8 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - uses: actions/checkout@v4
         with:
@@ -14,4 +16,4 @@ jobs:
       - name: Push to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://dhyann2815:$HF_TOKEN@huggingface.co/spaces/dhyann2815/Yield-Metrics main
+        run: git push --force https://dhyann2815:$HF_TOKEN@huggingface.co/spaces/dhyann2815/Yield-Metrics HEAD:main
