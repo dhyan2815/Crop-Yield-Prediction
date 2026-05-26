@@ -13,7 +13,14 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install huggingface_hub
       - name: Push to Hugging Face Space
         env:
           HF_TOKEN: ${{ secrets.HF_TOKEN }}
-        run: git push --force https://dhyann2815:$HF_TOKEN@huggingface.co/spaces/dhyann2815/Yield-Metrics HEAD:main
+        run: |
+          python -c "from huggingface_hub import HfApi; import os; api = HfApi(token=os.environ['HF_TOKEN']); api.upload_folder(folder_path='.', repo_id='dhyann2815/Yield-Metrics', repo_type='space', commit_message='Sync from GitHub Actions', ignore_patterns=['.git/*'])"
