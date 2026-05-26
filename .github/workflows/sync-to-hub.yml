@@ -7,9 +7,11 @@ jobs:
   sync:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6
-      - uses: huggingface/hub-sync@v0.1.0
+      - uses: actions/checkout@v4
         with:
-          github_repo_id: dhyan2815/Crop-Yield-Prediction
-          huggingface_repo_id: dhyann2815/Yield-Metrics
-          hf_token: ${{ secrets.HF_TOKEN }}
+          fetch-depth: 0
+          lfs: true
+      - name: Push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+        run: git push --force https://dhyann2815:$HF_TOKEN@huggingface.co/spaces/dhyann2815/Yield-Metrics main
