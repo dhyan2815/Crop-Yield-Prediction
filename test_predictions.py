@@ -1,0 +1,39 @@
+import pandas as pd
+import joblib
+import json
+import warnings
+from utils.predictor import predict_yield
+
+# Catch warnings to see if the ceiling guard is triggered
+warnings.filterwarnings('always', category=RuntimeWarning)
+
+try:
+    # Use the compressed model that we know was retrained
+    model = joblib.load('models/model_compressed_9.joblib')
+except FileNotFoundError:
+    model = joblib.load('models/model.pkl')
+
+with open('models/feature_columns.json', 'r') as f:
+    contract = json.load(f)
+
+# Define some typical test cases based on the validation logs
+test_cases = [
+    {'year': 2026, 'state': 'West Bengal', 'crop': 'Rice', 'season': 'Kharif'},
+    {'year': 2026, 'state': 'Punjab', 'crop': 'Wheat', 'season': 'Rabi'},
+    {'year': 2026, 'state': 'Uttar Pradesh', 'crop': 'Sugarcane', 'season': 'Kharif'}
+]
+
+print("Running Model Prediction Tests:")
+print("-" * 60)
+for idx, inputs in enumerate(test_cases, 1):
+    prediction = predict_yield(model, contract, inputs)
+    print(f"Test {idx}: {inputs['crop']} in {inputs['state']} ({inputs['season']}, {inputs['year']})")
+    print(f"  -> Actual Prediction Value: {prediction:,.2f} kg/ha")
+    
+    # Check if the output is hitting the fallback ceiling
+    if prediction == 100000.0:
+        print("  -> STATUS: FAILED (Model output hit the 100,000 kg/ha ceiling guard)")
+    else:
+        print("  -> STATUS: PASSED (Valid dynamic prediction)")
+print("-" * 60)
+print("Conclusion: The log1p transformation bug is locally resolved if tests passed.")
