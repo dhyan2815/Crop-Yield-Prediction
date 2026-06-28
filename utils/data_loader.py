@@ -9,11 +9,13 @@ from scripts.config import MODEL_PATH, CONTRACT_PATH, FEATURES_DATA_PATH
 def load_model_and_contract():
     """Load the trained model and the feature contract (metadata-driven)."""
     try:
+        # Load the persisted model artifact first because inference cannot start without it.
         model = joblib.load(MODEL_PATH)
+        # Load the feature contract so input rows match the training-time column order.
         with open(CONTRACT_PATH, 'r') as f:
             contract = json.load(f)
         
-        # Backward compatibility for old list-based contracts
+        # Keep backward compatibility with older list-based contracts produced before metadata was added.
         if isinstance(contract, list):
             contract = {"features": contract, "target_transform": None}
             
@@ -26,6 +28,7 @@ def load_model_and_contract():
 def load_reference_data():
     """Load the processed features data to extract UI options (States, Crops, Seasons)."""
     try:
+        # If the feature table is missing, return an empty frame so the UI can fail gracefully.
         if not os.path.exists(FEATURES_DATA_PATH):
             return pd.DataFrame()
         df = pd.read_csv(FEATURES_DATA_PATH)
@@ -41,7 +44,7 @@ def get_ui_options():
     if df.empty:
         return [], [], []
     
-    # We find columns starting with state_, crop_, season_
+    # Read the one-hot encoded column prefixes so the dropdown values mirror the training features.
     states = sorted([c.replace('state_', '') for c in df.columns if c.startswith('state_')])
     crops = sorted([c.replace('crop_', '') for c in df.columns if c.startswith('crop_')])
     seasons = sorted([c.replace('season_', '') for c in df.columns if c.startswith('season_')])
@@ -52,6 +55,7 @@ def get_ui_options():
 def get_crop_averages():
     """Calculate the national average yield for every crop type."""
     try:
+        # Benchmark against the cleaned dataset so the insight panel can compare against historical averages.
         cleaned_path = os.path.join("data", "processed", "cleaned.csv")
         if not os.path.exists(cleaned_path):
             return {}

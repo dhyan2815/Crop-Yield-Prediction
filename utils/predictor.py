@@ -18,18 +18,19 @@ def predict_yield(model, contract, inputs):
       2. nan_to_num — converts any remaining NaN/inf to bounded floats.
       3. max(0, ...) — ensures physically non-negative yield output.
     """
+    # Read the expected feature order and output transform directly from the contract.
     features = contract.get('features', [])
     transform = contract.get('target_transform', None)
     
-    # 1. Initialize all contract features to 0
+    # Initialize every expected column to zero before filling the selected scenario values.
     row = {col: 0 for col in features}
     
-    # 2. Add numeric features (with normalization)
+    # Normalize the year so inference uses the same scale as training.
     if 'year_normalized' in row:
         year = inputs.get('year', YEAR_MAX)
         row['year_normalized'] = (year - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)
     
-    # 3. Handle One-Hot Encoding
+    # Activate the one-hot encoded state, crop, and season columns that match the selected inputs.
     state_col = f"state_{inputs.get('state')}"
     crop_col = f"crop_{inputs.get('crop')}"
     season_col = f"season_{inputs.get('season')}"
@@ -38,18 +39,16 @@ def predict_yield(model, contract, inputs):
     if crop_col in row: row[crop_col] = 1
     if season_col in row: row[season_col] = 1
         
-    # 4. Create DataFrame and enforce order
+    # Build a single-row DataFrame and enforce the exact contract column order.
     input_df = pd.DataFrame([row])
     input_df = input_df[features] 
     
-    # 5. Predict
+    # Run the model on the contract-aligned input row.
     prediction = model.predict(input_df)[0]
 
-    # 6. Inverse Transform — with log-space ceiling guard
+    # Reverse the log transform only when the contract says the model was trained in log space.
     if transform == "log1p":
-        # Guard: if prediction is > _LOG_SPACE_MAX, the model was likely trained
-        # WITHOUT log-transform (stale model / contract mismatch).
-        # np.expm1(values > ~710) overflows float64 to +inf silently.
+        # Guard against stale models that output raw yield values despite a log1p contract.
         if prediction > _LOG_SPACE_MAX:
             warnings.warn(
                 f"[predictor] Log-space prediction {prediction:.2f} exceeds safe ceiling "
@@ -59,13 +58,12 @@ def predict_yield(model, contract, inputs):
                 f"ACTION REQUIRED: Re-run scripts/run_pipeline.py to retrain the model.",
                 RuntimeWarning, stacklevel=2
             )
-            # Best-effort: treat the raw value as the actual yield (no expm1)
-            # and cap it at the dataset ceiling from run_pipeline.py (100,000 kg/ha)
+            # Treat the raw value as already-decoded yield and cap it to a conservative ceiling.
             prediction = min(float(prediction), 100000.0)
         else:
             prediction = np.expm1(prediction)
     
-    # 7. Safety Clipping (Prevent inf/NaN and impossible values)
+    # Clamp invalid floating-point outputs before returning the final physical yield.
     prediction = np.nan_to_num(prediction, nan=0.0, posinf=100000.0, neginf=0.0)
     return max(0, float(prediction))
 
@@ -74,6 +72,7 @@ def get_risk_assessment(yield_val, crop, avg_yield=0):
     if avg_yield <= 0:
         return "Unknown", "Insufficient benchmark data for this crop."
     
+    # Express the forecast as a percentage of the historical crop average.
     performance_ratio = (yield_val / avg_yield) * 100
     
     if performance_ratio < 75:
