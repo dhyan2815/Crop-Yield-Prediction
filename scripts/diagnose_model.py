@@ -1,13 +1,14 @@
 import joblib, json, numpy as np, pandas as pd, sys, os
 
-# Make sure we run from project root
+# Run from the project root so all relative artifact paths resolve correctly.
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Load model and contract
+# Load the model and feature contract used by production inference.
 model = joblib.load('models/model.pkl')
 with open('models/feature_columns.json') as f:
     contract = json.load(f)
 
+# Print the contract summary first so it is obvious what input shape the model expects.
 features = contract['features']
 transform = contract.get('target_transform')
 
@@ -21,12 +22,14 @@ print(f'Season features: {[f for f in features if f.startswith("season_")]}')
 YEAR_MIN = 2000
 YEAR_MAX = 2026
 print(f'\n=== YEAR NORMALIZATION CHECK ===')
+# Confirm the year normalization used in the app matches the training pipeline.
 for yr in [2000, 2010, 2020, 2026]:
     norm = (yr - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)
     print(f'  Year {yr} -> year_normalized = {norm:.4f}')
 
 # ---- TEST PREDICTION FUNCTION (mirroring predictor.py exactly) ----
 def predict_yield(inputs, verbose=True):
+    # Recreate the contract-aligned input row so the diagnostic mirrors production inference.
     row = {col: 0 for col in features}
     if 'year_normalized' in row:
         year = inputs.get('year', YEAR_MAX)
@@ -44,14 +47,17 @@ def predict_yield(inputs, verbose=True):
     if crop_col   in row: row[crop_col]   = 1
     if season_col in row: row[season_col] = 1
 
+    # Keep the row order fixed before calling the estimator.
     input_df = pd.DataFrame([row])[features]
     raw_pred = model.predict(input_df)[0]
 
     if transform == 'log1p':
+        # Reverse log-space output exactly the way the production helper does.
         inv_pred = np.expm1(raw_pred)
     else:
         inv_pred = raw_pred
 
+    # Clamp impossible floating-point outputs to keep the diagnostics readable.
     safe_pred = np.nan_to_num(inv_pred, nan=0.0, posinf=100000.0)
     final = max(0, float(safe_pred))
 
@@ -66,6 +72,7 @@ def predict_yield(inputs, verbose=True):
     return final
 
 # ---- TEST CASES ----
+# Use a few representative crop/state combinations so the output covers common paths.
 print('\n=== TEST CASE 1: Rice / West Bengal / Kharif / 2020 ===')
 predict_yield({'state': 'West Bengal', 'crop': 'Rice', 'season': 'Kharif', 'year': 2020})
 
@@ -82,6 +89,7 @@ print('\n=== TEST CASE 5: ALL ZEROS (all identifiers miss) ===')
 predict_yield({'state': 'FAKESTATE', 'crop': 'FAKECROP', 'season': 'FAKESEASON', 'year': 2020})
 
 print('\n=== YEAR SENSITIVITY: Rice / West Bengal / Kharif across years ===')
+# Sweep across years to see how much the model depends on the normalized year feature.
 for yr in [2000, 2005, 2010, 2015, 2020, 2026]:
     row = {col: 0 for col in features}
     row['year_normalized'] = (yr - YEAR_MIN) / (YEAR_MAX - YEAR_MIN)
@@ -94,6 +102,7 @@ for yr in [2000, 2005, 2010, 2015, 2020, 2026]:
     print(f'  Year {yr}: {final:,.2f} kg/ha')
 
 print('\n=== WHAT DOES THE MODEL PREDICT ON AN ALL-ZERO ROW? ===')
+# Check the baseline output for a fully empty row so fallback behavior stays visible.
 zero_row = pd.DataFrame([{col: 0 for col in features}])[features]
 raw_zero = model.predict(zero_row)[0]
 print(f'  raw log-space: {raw_zero:.6f}')
@@ -104,11 +113,13 @@ print(f'  np.nan_to_num(np.inf,  nan=0.0, posinf=100000.0) = {np.nan_to_num(np.i
 print(f'  np.nan_to_num(np.nan, nan=0.0, posinf=100000.0) = {np.nan_to_num(np.nan, nan=0.0, posinf=100000.0)}')
 print()
 print('=== FEATURE IMPORTANCE: Top 20 features ===')
+# Inspect feature importances to understand which signals drive the model most strongly.
 importances = model.feature_importances_
 feat_imp = pd.Series(importances, index=features).sort_values(ascending=False)
 print(feat_imp.head(20).to_string())
 print()
 print('=== ZERO IMPORTANCE features (potential dead features) ===')
+# Surface dead features so it is easier to spot columns that never influence the model.
 zero_imp = feat_imp[feat_imp == 0]
 print(f'  Count of zero-importance features: {len(zero_imp)}')
 print(zero_imp.to_string())
