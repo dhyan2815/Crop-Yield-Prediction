@@ -3,6 +3,7 @@ from scripts.config import APP_DATA_SOURCES
 
 def apply_custom_css():
     """Apply a truly minimal CSS that lets Streamlit's native theme handle colors."""
+    # Inject a small styling layer so metrics and cards stay readable without replacing the theme.
     st.markdown("""
     <style>
     /* Let Streamlit handle the main app background and base text colors */
@@ -46,12 +47,14 @@ def apply_custom_css():
 
 def display_header():
     """Display the application header."""
+    # Lead with the project title and a one-line explanation of what the app does.
     st.title("🌾 Yield Metrics")
     st.caption("Crop Yield Forecasting for Indian States using Machine Learning.")
     st.info("This system uses a ground-up rebuild with a strict feature contract to ensure zero-mismatch predictions.")
 
 def display_footer():
     """Display the application footer."""
+    # End the page with a concise provenance block.
     st.divider()
     st.markdown("""
     <div class="app-footer">
@@ -62,6 +65,7 @@ def display_footer():
 
 def display_data_sources():
     """Display transparent data sourcing."""
+    # Show the data sources in one place so users can trace the dataset provenance.
     st.divider()
     st.header("📊 Data Sourcing")
     st.markdown("This project is powered by open agricultural datasets:")

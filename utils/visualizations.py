@@ -6,12 +6,13 @@ try:
     import plotly.graph_objects as go
     HAS_PLOTLY = True
 except ImportError:
+    # Fall back gracefully when Plotly is not installed so the app can still load.
     HAS_PLOTLY = False
 
 
 def display_prediction_card(yield_val, status, message):
     """Display a professional card for the prediction result using native theme colors."""
-    # Updated color mapping for dynamic status
+    # Map status labels to a stable accent color so the card can communicate risk at a glance.
     color_map = {
         "Optimal": "#10b981", # Green
         "Healthy": "#2D5A27", # Deep Green
@@ -22,6 +23,7 @@ def display_prediction_card(yield_val, status, message):
     }
     status_color = color_map.get(status, "#6b7280")
     
+    # Render the prediction as a compact HTML card for stronger visual hierarchy.
     st.markdown(f"""
     <div class="prediction-card" style="border-left: 8px solid {status_color};">
         <h3 style="margin: 0; opacity: 0.8; font-size: 0.9rem; text-transform: uppercase;">Predicted Yield</h3>
@@ -43,6 +45,7 @@ def create_historical_chart(df, state, crop):
         st.warning("Plotly is required for historical charts. Please install it using: pip install plotly")
         return None
         
+    # Filter to the selected state/crop pair and sort chronologically before plotting.
     mask = (df['state'] == state) & (df['crop'] == crop)
     filtered_df = df[mask].sort_values('crop_year')
     
@@ -58,7 +61,7 @@ def create_historical_chart(df, state, crop):
         color_discrete_sequence=['#2D5A27']
     )
     
-    # We remove hardcoded font colors and let Plotly inherit or use its standard responsive theme
+    # Keep the chart theme-neutral so it works in both light and dark layouts.
     fig.update_layout(
         plot_bgcolor='rgba(0,0,0,0)',
         paper_bgcolor='rgba(0,0,0,0)',
@@ -75,6 +78,7 @@ def create_comparison_chart(yield_current, yield_simulated):
     if not HAS_PLOTLY:
         return None
         
+    # Show the baseline and simulated cases side by side for quick scenario comparison.
     fig = go.Figure(go.Bar(
         x=['Baseline', 'Simulated'],
         y=[yield_current, yield_simulated],
