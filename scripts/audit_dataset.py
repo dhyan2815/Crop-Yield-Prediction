@@ -8,14 +8,13 @@ import pandas as pd
 import numpy as np
 import os
 
+# Run from the repository root so relative data paths resolve correctly.
 os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 RAW = 'data/raw/india_crop_yield.csv'
 CLEANED = 'data/processed/cleaned.csv'
 
-# ──────────────────────────────────────────────────────────
-# 1. RAW FILE
-# ──────────────────────────────────────────────────────────
+# Inspect the raw file first to understand the source schema and missingness.
 print("=" * 60)
 print("RAW DATASET AUDIT")
 print("=" * 60)
@@ -28,9 +27,7 @@ print(f"\nNull counts:\n{df_raw.isnull().sum()}")
 print(f"\nSample rows:")
 print(df_raw.head(5).to_string())
 
-# ──────────────────────────────────────────────────────────
-# 2. CLEANED FILE (post-pipeline)
-# ──────────────────────────────────────────────────────────
+# Recheck the cleaned file to confirm the pipeline output has the expected shape.
 print("\n" + "=" * 60)
 print("CLEANED DATASET AUDIT")
 print("=" * 60)
@@ -42,9 +39,7 @@ print(f"Unique states: {df['state'].nunique()} → {sorted(df['state'].unique())
 print(f"Unique crops : {df['crop'].nunique()} → {sorted(df['crop'].unique())}")
 print(f"Unique seasons: {sorted(df['season'].unique())}")
 
-# ──────────────────────────────────────────────────────────
-# 3. YIELD DISTRIBUTION per CROP
-# ──────────────────────────────────────────────────────────
+# Summarize target variability by crop to spot unusually sparse or volatile groups.
 print("\n" + "=" * 60)
 print("YIELD STATS PER CROP (kg/ha)")
 print("=" * 60)
@@ -53,9 +48,7 @@ crop_stats.columns = ['count','min','mean','median','max','std']
 crop_stats = crop_stats.sort_values('mean', ascending=False)
 print(crop_stats.round(1).to_string())
 
-# ──────────────────────────────────────────────────────────
-# 4. YIELD DISTRIBUTION per STATE
-# ──────────────────────────────────────────────────────────
+# Summarize the same target behavior by state for regional comparison.
 print("\n" + "=" * 60)
 print("YIELD STATS PER STATE (kg/ha)")
 print("=" * 60)
@@ -64,9 +57,7 @@ state_stats.columns = ['count','min','mean','median','max']
 state_stats = state_stats.sort_values('mean', ascending=False)
 print(state_stats.round(1).to_string())
 
-# ──────────────────────────────────────────────────────────
-# 5. COMBO COVERAGE: how many (state, crop) pairs exist?
-# ──────────────────────────────────────────────────────────
+# Measure coverage for each state/crop/season combination so sparsity is obvious.
 print("\n" + "=" * 60)
 print("COVERAGE: state × crop × season combos")
 print("=" * 60)
@@ -75,13 +66,11 @@ combos.columns = ['state','crop','season','n_records','mean_yield']
 print(f"Total unique (state, crop, season) combos: {len(combos)}")
 print(f"Combos with < 3 records (sparse): {(combos['n_records'] < 3).sum()}")
 print(f"Combos with 1 record only       : {(combos['n_records'] == 1).sum()}")
-# Show top sparse
+# Show the sparsest combinations first so gaps are easy to inspect.
 print("\nTop 20 sparsest combos:")
 print(combos.nsmallest(20, 'n_records').to_string(index=False))
 
-# ──────────────────────────────────────────────────────────
-# 6. YEAR x CROP: which crops have data in which years?
-# ──────────────────────────────────────────────────────────
+# Check year coverage so we can see whether any crop has gaps across the timeline.
 print("\n" + "=" * 60)
 print("YEAR COVERAGE per CROP")
 print("=" * 60)
@@ -90,9 +79,7 @@ year_crop.columns = ['first_year','last_year','n_years']
 year_crop = year_crop.sort_values('n_years', ascending=True)
 print(year_crop.to_string())
 
-# ──────────────────────────────────────────────────────────
-# 7. EXTRAPOLATED YEARS (2021-2026): are these real or synthetic?
-# ──────────────────────────────────────────────────────────
+# Inspect future years separately because they may represent extrapolated or synthetic entries.
 print("\n" + "=" * 60)
 print("DATA FOR YEARS > 2020 (extrapolated?)")
 print("=" * 60)
@@ -101,9 +88,7 @@ print(f"Records with year > 2020: {len(future_df)}")
 if len(future_df) > 0:
     print(future_df.groupby(['crop_year','crop'])['yield_kg_ha'].mean().unstack().round(1).to_string())
 
-# ──────────────────────────────────────────────────────────
-# 8. TARGET VARIABLE DISTRIBUTION
-# ──────────────────────────────────────────────────────────
+# Finish by checking the full target distribution, including a log transform view for skew.
 print("\n" + "=" * 60)
 print("TARGET VARIABLE DISTRIBUTION (yield_kg_ha)")
 print("=" * 60)
