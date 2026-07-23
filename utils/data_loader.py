@@ -1,66 +1,90 @@
-import streamlit as st
-import pandas as pd
-import joblib
+"""
+Data and Model Loading Utilities for Streamlit Application
+
+Centralizes cached data loading, reference dataset parsing, and feature contract retrieval.
+Uses Streamlit caching decorators to optimize performance and prevent repeated file IO.
+"""
+
 import json
 import os
-from scripts.config import MODEL_PATH, CONTRACT_PATH, FEATURES_DATA_PATH
+from typing import Any
+import joblib
+import pandas as pd
+import streamlit as st
+
+from scripts.config import (
+    CLEANED_DATA_PATH,
+    CONTRACT_PATH,
+    FEATURES_DATA_PATH,
+    MODEL_PATH,
+)
+
 
 @st.cache_resource
-def load_model_and_contract():
-    """Load the trained model and the feature contract (metadata-driven)."""
+def load_model_and_contract() -> tuple[Any, dict[str, Any] | None]:
+    """Load the trained machine learning model and feature contract.
+
+    Uses @st.cache_resource to cache heavy ML model objects in memory across user sessions.
+    """
     try:
-        # Load the persisted model artifact first because inference cannot start without it.
         model = joblib.load(MODEL_PATH)
-        # Load the feature contract so input rows match the training-time column order.
-        with open(CONTRACT_PATH, 'r') as f:
+        with open(CONTRACT_PATH, "r", encoding="utf-8") as f:
             contract = json.load(f)
-        
-        # Keep backward compatibility with older list-based contracts produced before metadata was added.
+
+        # Ensure backward compatibility with legacy list-based contracts
         if isinstance(contract, list):
             contract = {"features": contract, "target_transform": None}
-            
+
         return model, contract
     except Exception as e:
-        st.error(f"Failed to load AI model or contract: {e}")
+        st.error(f"Failed to load model or contract artifact: {e}")
         return None, None
 
-@st.cache_data
-def load_reference_data():
-    """Load the processed features data to extract UI options (States, Crops, Seasons)."""
-    try:
-        # If the feature table is missing, return an empty frame so the UI can fail gracefully.
-        if not os.path.exists(FEATURES_DATA_PATH):
-            return pd.DataFrame()
-        df = pd.read_csv(FEATURES_DATA_PATH)
-        return df
-    except Exception as e:
-        st.error(f"Failed to load reference data: {e}")
-        return pd.DataFrame()
 
 @st.cache_data
-def get_ui_options():
-    """Extract states, crops, and seasons from the data for the UI dropdowns."""
+def load_reference_data() -> pd.DataFrame:
+    """Load feature matrix used to extract valid UI options.
+
+    Uses @st.cache_data to cache dataframes efficiently across reruns.
+    """
+    try:
+        if not os.path.exists(FEATURES_DATA_PATH):
+            return pd.DataFrame()
+        return pd.read_csv(FEATURES_DATA_PATH)
+    except Exception as e:
+        st.error(f"Failed to load reference data matrix: {e}")
+        return pd.DataFrame()
+
+
+def _extract_category_levels(columns: list[str], prefix: str) -> list[str]:
+    """Helper function to extract sorted category names from one-hot column headers."""
+    prefix_str = f"{prefix}_"
+    return sorted([col.replace(prefix_str, "") for col in columns if col.startswith(prefix_str)])
+
+
+@st.cache_data
+def get_ui_options() -> tuple[list[str], list[str], list[str]]:
+    """Extract distinct States, Crops, and Seasons available in the feature dataset."""
     df = load_reference_data()
     if df.empty:
         return [], [], []
-    
-    # Read the one-hot encoded column prefixes so the dropdown values mirror the training features.
-    states = sorted([c.replace('state_', '') for c in df.columns if c.startswith('state_')])
-    crops = sorted([c.replace('crop_', '') for c in df.columns if c.startswith('crop_')])
-    seasons = sorted([c.replace('season_', '') for c in df.columns if c.startswith('season_')])
-    
+
+    cols = df.columns.tolist()
+    states = _extract_category_levels(cols, "state")
+    crops = _extract_category_levels(cols, "crop")
+    seasons = _extract_category_levels(cols, "season")
+
     return states, crops, seasons
 
+
 @st.cache_data
-def get_crop_averages():
-    """Calculate the national average yield for every crop type."""
+def get_crop_averages() -> dict[str, float]:
+    """Compute historical national average yield (kg/ha) for each crop."""
     try:
-        # Benchmark against the cleaned dataset so the insight panel can compare against historical averages.
-        cleaned_path = os.path.join("data", "processed", "cleaned.csv")
-        if not os.path.exists(cleaned_path):
+        if not os.path.exists(CLEANED_DATA_PATH):
             return {}
-        df = pd.read_csv(cleaned_path)
-        return df.groupby('crop')['yield_kg_ha'].mean().to_dict()
+        df = pd.read_csv(CLEANED_DATA_PATH)
+        return df.groupby("crop")["yield_kg_ha"].mean().to_dict()
     except Exception as e:
-        st.error(f"Failed to calculate crop averages: {e}")
+        st.error(f"Failed to calculate historical crop benchmarks: {e}")
         return {}
