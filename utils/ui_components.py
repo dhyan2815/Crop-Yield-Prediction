@@ -69,7 +69,7 @@ def display_footer() -> None:
         """
         <div class="app-footer">
             <p>Built with Streamlit & Random Forest</p>
-            <p style="font-size: 0.75rem; margin-top: 0.25rem;">Data: India Agricultural Statistics (1997–2020)</p>
+            <p style="font-size: 0.75rem; margin-top: 0.25rem;">Data: India Agricultural Statistics (2000–2026)</p>
         </div>
         """,
         unsafe_allow_html=True,

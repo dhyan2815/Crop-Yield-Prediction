@@ -1,26 +1,14 @@
----
-title: Yield Metrics
-emoji: 🌾
-colorFrom: green
-colorTo: yellow
-sdk: streamlit
-sdk_version: 1.48.1
-app_file: app.py
-pinned: false
-license: mit
----
-
 # 🌾 Yield Metrics
-**Indian Crop Yield Forecasting System**
+**A Crop Yield Prediction System**
 
-Yield Metrics is a professional-grade web application designed to predict and simulate crop yields across Indian states. Rebuilt from the ground up in April 2026, it features a "Contract-Based" machine learning architecture that guarantees zero interface mismatches and high-precision forecasting.
+Yield Metrics is a web application designed to predict and simulate crop yields across Indian states. It features a "Contract-Based" machine learning architecture that guarantees zero interface mismatches and high-precision forecasting.
 
 ## 🌟 Key Features
 -   **Contract-Based Inference**: Uses a JSON-based "Feature Contract" (`models/feature_columns.json`) to perfectly align frontend inputs with ML model requirements.
--   **Scenario Simulator**: Interactive sliders and dropdowns to simulate yield forecasts based on State, Crop, Year, and Season.
--   **Yield Performance Indexing**: Intelligent benchmarking that converts forecasts into a "Performance Score" (100 = National Average) for more intuitive and positive insight analysis.
--   **Premium Dashboard**: A modern, theme-aware UI (Light/Dark mode) with interactive Plotly visualizations.
--   **Risk Assessment**: Real-time evaluation of yield health (Healthy, Moderate, or Critical) based on historical benchmarks.
+-   **Scenario Simulator**: Interactive sliders and dropdowns to simulate yield forecasts based on State, Crop, Year, and Season combinations.
+-   **Yield Performance Indexing**: Intelligent benchmarking that converts forecasts into a "Performance Score" (100 = Crop-Specific National Average) for more intuitive and positive insight analysis.
+-   **Premium Dashboard**: A modern, theme-aware UI (Light/Dark mode) leveraging Streamlit's native engine and custom CSS variables with interactive Plotly visualizations.
+-   **Risk Assessment**: Real-time evaluation of yield health (Optimal, Stable, or Critical Low) based on crop-specific historical average benchmarks.
 -   **Historical Data**: Deep-dive into 27 years of Indian agricultural statistics (2000–2026).
 
 ## 🛠️ Technology Stack

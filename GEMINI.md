@@ -2,6 +2,11 @@
 
 ## Changelog
 
+**2026-07-23 (README & UI Footer Reconciliation)**
+- **Aligned** `README.md` features with the codebase implementation. Updated **Yield Performance Indexing** description to clarify crop-specific averages and **Risk Assessment** health output levels to `Optimal, Stable, or Critical Low`.
+- **Corrected** hardcoded year range `1997–2020` in the application footer (`utils/ui_components.py`) to `2000–2026` to match configuration constants and active dataset features.
+- **Verified** all prediction checks using `test_predictions.py` (all tests passed).
+
 **2026-07-23 (Code Refactoring — 10 Core Files Standardization)**
 - **Refactored** `test_predictions.py`, `scripts/audit_dataset.py`, `scripts/config.py`, `scripts/run_pipeline.py`, `utils/data_loader.py`, `utils/predictor.py`, `utils/ui_components.py`, `utils/visualizations.py`, `app.py`, and `.github/workflows/sync-to-hub.yml`.
 - **Standardized** SSOT path usage across all scripts with `CLEANED_DATA_PATH` added to `config.py`.
