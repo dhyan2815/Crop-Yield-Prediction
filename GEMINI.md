@@ -2,6 +2,15 @@
 
 ## Changelog
 
+**2026-07-23 (Code Refactoring — 10 Core Files Standardization)**
+- **Refactored** `test_predictions.py`, `scripts/audit_dataset.py`, `scripts/config.py`, `scripts/run_pipeline.py`, `utils/data_loader.py`, `utils/predictor.py`, `utils/ui_components.py`, `utils/visualizations.py`, `app.py`, and `.github/workflows/sync-to-hub.yml`.
+- **Standardized** SSOT path usage across all scripts with `CLEANED_DATA_PATH` added to `config.py`.
+- **Structured** flat script logic into clean, modular, beginner-friendly functions with clear docstrings, type annotations, and descriptive log outputs.
+- **Formatted** GitHub Actions workflow YAML block for Hugging Face Hub sync.
+- **Verified** behavior preservation using `test_predictions.py` (all tests passed with dynamic predictions).
+
+
+
 **2026-06-23 (Git Revert of 15 Cleanup Commits)**
 - **Reverted** the 15 cleanup and standardization commits (`d755dc2` to `73eabdf`) back to the state of commit `0f6e0f9`.
 - **Created** a single consolidated revert commit `revert: undo 15 cleanup commits (Phase 1)`.

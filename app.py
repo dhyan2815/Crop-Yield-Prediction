@@ -1,127 +1,139 @@
-import streamlit as st
-import pandas as pd
+"""
+Yield Metrics — Crop Yield Prediction & Intelligence Dashboard
+
+Main Streamlit application entry point. Enables Indian agricultural yield forecasting,
+historical trajectory analysis, and dynamic benchmarking.
+"""
+
 import os
+import pandas as pd
+import streamlit as st
 
-from scripts.config import YEAR_MIN, YEAR_MAX
-from utils.data_loader import load_model_and_contract, get_ui_options, load_reference_data, get_crop_averages
-from utils.predictor import predict_yield, get_risk_assessment
-from utils.ui_components import apply_custom_css, display_header, display_footer, display_data_sources
-from utils.visualizations import display_prediction_card, create_historical_chart, create_comparison_chart
+from scripts.config import CLEANED_DATA_PATH, YEAR_MAX, YEAR_MIN
+from utils.data_loader import (
+    get_crop_averages,
+    get_ui_options,
+    load_model_and_contract,
+)
+from utils.predictor import get_risk_assessment, predict_yield
+from utils.ui_components import (
+    apply_custom_css,
+    display_data_sources,
+    display_footer,
+    display_header,
+)
+from utils.visualizations import (
+    create_historical_chart,
+    display_prediction_card,
+)
 
-# Configure the Streamlit page before rendering any UI.
+# Page configuration MUST be called as the first Streamlit command
 st.set_page_config(
     page_title="Yield Metrics",
     page_icon="🌾",
     layout="wide",
-    initial_sidebar_state="expanded"
+    initial_sidebar_state="expanded",
 )
 
-# Apply global styling so all pages share the same visual foundation.
+# Apply global CSS theme foundation
 apply_custom_css()
 
-def main():
-    # Render the title and project summary first so the page feels oriented.
+
+def main() -> None:
+    """Render the primary Streamlit application interface."""
     display_header()
-    
-    # Load the trained model together with the feature contract that defines input shape.
+
+    # Load model and contract metadata
     model, contract = load_model_and_contract()
     if model is None or contract is None:
-        st.error("Missing model or feature contract in 'models/' folder. Please run the training notebooks first.")
+        st.error("Missing model artifact or feature contract in 'models/' folder. Please run the training pipeline first.")
         return
 
-    # Pull dropdown options from the feature table so UI values match the encoded model inputs.
+    # Load dropdown input options
     states, crops, seasons = get_ui_options()
     if not states:
-        st.error("No reference data found in 'data/features/features.csv'.")
+        st.error("No reference feature data found in 'data/features/features.csv'. Please check the dataset pipeline.")
         return
 
-    # Sidebar collects the core inference inputs used by the prediction contract.
+    # Sidebar inputs controls
     with st.sidebar:
         st.header("📍 Location & Crop")
         selected_state = st.selectbox("State", states, help="Select the target Indian State")
         selected_crop = st.selectbox("Crop", crops, help="Target crop to predict")
-        selected_season = st.selectbox("Season", seasons, help="Kharif, Rabi, etc.")
-        
+        selected_season = st.selectbox("Season", seasons, help="Agricultural season (Kharif, Rabi, Whole Year, etc.)")
+
         st.divider()
         st.markdown("### 🛠️ Prediction Engine")
-        st.info("Core Logic: Random Forest Regressor")
-        st.markdown(f"**Normalization Range:** {YEAR_MIN}—{YEAR_MAX}")
+        st.info("Core Model: Random Forest Regressor")
+        st.markdown(f"**Normalization Bounds:** {YEAR_MIN}—{YEAR_MAX}")
 
-    # The year slider stays separate so users can explore trend sensitivity quickly.
+    # Top parameter controls
     col1, col2, col3 = st.columns(3)
-    
     with col1:
         target_year = st.slider("Target Year", YEAR_MIN, YEAR_MAX, YEAR_MAX)
-    
     with col2:
-        # Placeholder for future context inputs such as weather or manual overrides.
         st.markdown("**Simulated Context**")
         st.caption("Standard seasonal baseline used for simulations.")
 
-    # Build the exact input payload expected by the prediction helper.
+    # Prepare input payload for inference
     st.divider()
-    
     inputs = {
-        'state': selected_state,
-        'crop': selected_crop,
-        'year': target_year,
-        'season': selected_season
+        "state": selected_state,
+        "crop": selected_crop,
+        "year": target_year,
+        "season": selected_season,
     }
-    
-    # Run inference through the contract-aware prediction layer.
+
+    # Run inference
     prediction = predict_yield(model, contract, inputs)
-    
-    # Load the benchmark average for the selected crop so the forecast can be contextualized.
+
+    # Benchmark analytics
     crop_averages = get_crop_averages()
-    avg_yield = crop_averages.get(selected_crop, 0)
-    
-    # Convert the raw yield into a human-readable risk label and explanation.
+    avg_yield = crop_averages.get(selected_crop, 0.0)
+
+    # Risk evaluation
     status, risk_msg = get_risk_assessment(prediction, selected_crop, avg_yield)
-    
-    # Split the results area into the primary forecast card and supporting insights.
+
+    # Main dashboard grid layout
     main_col, side_col = st.columns([2, 1])
-    
+
     with main_col:
-        # Show the main forecast card first because it is the primary user outcome.
+        # Display main prediction result card
         display_prediction_card(prediction, status, risk_msg)
-        
-        # Use the processed dataset to show the historical pattern behind the prediction.
+
+        # Render historical trend chart
         st.subheader("📊 Historical Trajectory")
-        cleaned_path = os.path.join("data", "processed", "cleaned.csv")
-        if os.path.exists(cleaned_path):
-            # Only render the chart when there is enough historical data to support it.
-            cleaned_df = pd.read_csv(cleaned_path)
+        if os.path.exists(CLEANED_DATA_PATH):
+            cleaned_df = pd.read_csv(CLEANED_DATA_PATH)
             chart = create_historical_chart(cleaned_df, selected_state, selected_crop)
             if chart:
                 st.plotly_chart(chart, use_container_width=True)
             else:
-                st.info("No sufficient historical records for this specific State/Crop combination.")
+                st.info("Insufficient historical records available for this specific State/Crop combination.")
         else:
-            st.warning("Trend chart unavailable: 'data/processed/cleaned.csv' not found.")
+            st.warning(f"Trend chart unavailable: Cleaned dataset not found at '{CLEANED_DATA_PATH}'.")
 
     with side_col:
-        # Surface a compact summary panel for confidence and benchmark comparison.
         st.subheader("💡 Insights")
-        st.metric("Forecast Confidence", "High", help="Based on R² score from training.")
-        
-        # Compare the forecast with the crop mean so users can read the number in context.
+        st.metric("Forecast Confidence", "High", help="Based on validation performance (R² = 0.967).")
+
         if avg_yield > 0:
-            yield_index = (prediction / avg_yield) * 100
+            yield_index = (prediction / avg_yield) * 100.0
             diff = prediction - avg_yield
-            
+
             st.metric(
-                label="Yield Performance Index", 
-                value=f"{yield_index:.1f}", 
+                label="Yield Performance Index",
+                value=f"{yield_index:.1f}",
                 delta=f"{diff:+,.0f} kg/ha",
-                help=f"A score of 100 represents the national {selected_crop} average benchmark."
+                help=f"A score of 100 represents the national {selected_crop} average benchmark.",
             )
             st.caption(f"**Benchmark:** {avg_yield:,.0f} kg/ha ({selected_crop})")
         else:
-            st.info("Performance index unavailable.")
+            st.info("Performance index benchmark unavailable.")
 
-    # Finish with transparent sourcing and the standard footer.
     display_data_sources()
     display_footer()
+
 
 if __name__ == "__main__":
     main()
