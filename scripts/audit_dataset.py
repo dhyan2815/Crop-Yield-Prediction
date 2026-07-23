@@ -1,114 +1,126 @@
 """
-Full dataset audit script.
-Answers: what is in the raw CSV, what are the yield ranges per crop,
-how many unique state/crop/season combos exist, and what is the
-distribution of the target variable.
+Full Dataset Audit Utility
+
+Analyzes raw and processed agricultural data files:
+1. Validates raw schema, missing value counts, and initial samples.
+2. Inspects cleaned dataset dimensions, temporal span, and categorical diversity.
+3. Computes statistical yield distributions by crop and state.
+4. Identifies sparse (state, crop, season) data combinations.
+5. Verifies log-transform distribution metrics.
 """
-import pandas as pd
-import numpy as np
+
 import os
+import numpy as np
+import pandas as pd
 
-# Run from the repository root so relative data paths resolve correctly.
-os.chdir(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from scripts.config import CLEANED_DATA_PATH, RAW_DATA_PATH
 
-RAW = 'data/raw/india_crop_yield.csv'
-CLEANED = 'data/processed/cleaned.csv'
 
-# Inspect the raw file first to understand the source schema and missingness.
-print("=" * 60)
-print("RAW DATASET AUDIT")
-print("=" * 60)
-df_raw = pd.read_csv(RAW)
-df_raw.columns = df_raw.columns.str.strip().str.lower()
-print(f"Shape        : {df_raw.shape}")
-print(f"Columns      : {list(df_raw.columns)}")
-print(f"Dtypes:\n{df_raw.dtypes}")
-print(f"\nNull counts:\n{df_raw.isnull().sum()}")
-print(f"\nSample rows:")
-print(df_raw.head(5).to_string())
+def print_section(title: str) -> None:
+    """Print a visually distinct section banner for clear terminal reading."""
+    print("\n" + "=" * 60)
+    print(title.upper())
+    print("=" * 60)
 
-# Recheck the cleaned file to confirm the pipeline output has the expected shape.
-print("\n" + "=" * 60)
-print("CLEANED DATASET AUDIT")
-print("=" * 60)
-df = pd.read_csv(CLEANED)
-print(f"Shape        : {df.shape}")
-print(f"Columns      : {list(df.columns)}")
-print(f"Year range   : {df['crop_year'].min()} – {df['crop_year'].max()}")
-print(f"Unique states: {df['state'].nunique()} → {sorted(df['state'].unique())}")
-print(f"Unique crops : {df['crop'].nunique()} → {sorted(df['crop'].unique())}")
-print(f"Unique seasons: {sorted(df['season'].unique())}")
 
-# Summarize target variability by crop to spot unusually sparse or volatile groups.
-print("\n" + "=" * 60)
-print("YIELD STATS PER CROP (kg/ha)")
-print("=" * 60)
-crop_stats = df.groupby('crop')['yield_kg_ha'].agg(['count','min','mean','median','max','std'])
-crop_stats.columns = ['count','min','mean','median','max','std']
-crop_stats = crop_stats.sort_values('mean', ascending=False)
-print(crop_stats.round(1).to_string())
+def audit_raw_dataset(raw_path: str) -> None:
+    """Inspect raw input file schema, data types, nulls, and head samples."""
+    print_section("Raw Dataset Audit")
+    if not os.path.exists(raw_path):
+        print(f"Warning: Raw dataset not found at '{raw_path}'")
+        return
 
-# Summarize the same target behavior by state for regional comparison.
-print("\n" + "=" * 60)
-print("YIELD STATS PER STATE (kg/ha)")
-print("=" * 60)
-state_stats = df.groupby('state')['yield_kg_ha'].agg(['count','min','mean','median','max'])
-state_stats.columns = ['count','min','mean','median','max']
-state_stats = state_stats.sort_values('mean', ascending=False)
-print(state_stats.round(1).to_string())
+    df_raw = pd.read_csv(raw_path)
+    df_raw.columns = df_raw.columns.str.strip().str.lower()
 
-# Measure coverage for each state/crop/season combination so sparsity is obvious.
-print("\n" + "=" * 60)
-print("COVERAGE: state × crop × season combos")
-print("=" * 60)
-combos = df.groupby(['state','crop','season'])['yield_kg_ha'].agg(['count','mean']).reset_index()
-combos.columns = ['state','crop','season','n_records','mean_yield']
-print(f"Total unique (state, crop, season) combos: {len(combos)}")
-print(f"Combos with < 3 records (sparse): {(combos['n_records'] < 3).sum()}")
-print(f"Combos with 1 record only       : {(combos['n_records'] == 1).sum()}")
-# Show the sparsest combinations first so gaps are easy to inspect.
-print("\nTop 20 sparsest combos:")
-print(combos.nsmallest(20, 'n_records').to_string(index=False))
+    print(f"Shape        : {df_raw.shape}")
+    print(f"Columns      : {list(df_raw.columns)}")
+    print(f"Dtypes:\n{df_raw.dtypes}")
+    print(f"\nNull counts:\n{df_raw.isnull().sum()}")
+    print("\nSample rows:")
+    print(df_raw.head(5).to_string())
 
-# Check year coverage so we can see whether any crop has gaps across the timeline.
-print("\n" + "=" * 60)
-print("YEAR COVERAGE per CROP")
-print("=" * 60)
-year_crop = df.groupby('crop')['crop_year'].agg(['min','max','nunique'])
-year_crop.columns = ['first_year','last_year','n_years']
-year_crop = year_crop.sort_values('n_years', ascending=True)
-print(year_crop.to_string())
 
-# Inspect future years separately because they may represent extrapolated or synthetic entries.
-print("\n" + "=" * 60)
-print("DATA FOR YEARS > 2020 (extrapolated?)")
-print("=" * 60)
-future_df = df[df['crop_year'] > 2020]
-print(f"Records with year > 2020: {len(future_df)}")
-if len(future_df) > 0:
-    print(future_df.groupby(['crop_year','crop'])['yield_kg_ha'].mean().unstack().round(1).to_string())
+def audit_cleaned_dataset(cleaned_path: str) -> None:
+    """Audit processed dataset structure, categories, and target statistics."""
+    print_section("Cleaned Dataset Audit")
+    if not os.path.exists(cleaned_path):
+        print(f"Error: Cleaned dataset not found at '{cleaned_path}'")
+        return
 
-# Finish by checking the full target distribution, including a log transform view for skew.
-print("\n" + "=" * 60)
-print("TARGET VARIABLE DISTRIBUTION (yield_kg_ha)")
-print("=" * 60)
-y = df['yield_kg_ha']
-print(f"  Count  : {len(y):,}")
-print(f"  Min    : {y.min():,.1f}")
-print(f"  P5     : {y.quantile(0.05):,.1f}")
-print(f"  P25    : {y.quantile(0.25):,.1f}")
-print(f"  Median : {y.median():,.1f}")
-print(f"  Mean   : {y.mean():,.1f}")
-print(f"  P75    : {y.quantile(0.75):,.1f}")
-print(f"  P95    : {y.quantile(0.95):,.1f}")
-print(f"  Max    : {y.max():,.1f}")
-print(f"  Std    : {y.std():,.1f}")
-print(f"  Skew   : {y.skew():.3f}")
-y_log = np.log1p(y)
-print(f"\n  log1p stats:")
-print(f"  Min log1p: {y_log.min():.3f}")
-print(f"  Max log1p: {y_log.max():.3f}")
-print(f"  Mean log1p: {y_log.mean():.3f}")
-print(f"  Skew log1p: {y_log.skew():.3f}")
+    df = pd.read_csv(cleaned_path)
+    print(f"Shape        : {df.shape}")
+    print(f"Columns      : {list(df.columns)}")
+    print(f"Year range   : {df['crop_year'].min()} – {df['crop_year'].max()}")
+    print(f"Unique states: {df['state'].nunique()} -> {sorted(df['state'].unique())}")
+    print(f"Unique crops : {df['crop'].nunique()} -> {sorted(df['crop'].unique())}")
+    print(f"Unique seasons: {sorted(df['season'].unique())}")
 
-print("\n\n=== AUDIT COMPLETE ===")
+    # Yield stats per Crop
+    print_section("Yield Stats per Crop (kg/ha)")
+    crop_stats = df.groupby("crop")["yield_kg_ha"].agg(["count", "min", "mean", "median", "max", "std"])
+    crop_stats = crop_stats.sort_values("mean", ascending=False)
+    print(crop_stats.round(1).to_string())
+
+    # Yield stats per State
+    print_section("Yield Stats per State (kg/ha)")
+    state_stats = df.groupby("state")["yield_kg_ha"].agg(["count", "min", "mean", "median", "max"])
+    state_stats = state_stats.sort_values("mean", ascending=False)
+    print(state_stats.round(1).to_string())
+
+    # Coverage matrix analysis
+    print_section("Coverage: state x crop x season combos")
+    combos = df.groupby(["state", "crop", "season"])["yield_kg_ha"].agg(["count", "mean"]).reset_index()
+    combos.columns = ["state", "crop", "season", "n_records", "mean_yield"]
+    print(f"Total unique (state, crop, season) combos: {len(combos)}")
+    print(f"Combos with < 3 records (sparse): {(combos['n_records'] < 3).sum()}")
+    print(f"Combos with 1 record only       : {(combos['n_records'] == 1).sum()}")
+    print("\nTop 20 sparsest combos:")
+    print(combos.nsmallest(20, "n_records").to_string(index=False))
+
+    # Year coverage analysis
+    print_section("Year Coverage per Crop")
+    year_crop = df.groupby("crop")["crop_year"].agg(["min", "max", "nunique"])
+    year_crop.columns = ["first_year", "last_year", "n_years"]
+    year_crop = year_crop.sort_values("n_years", ascending=True)
+    print(year_crop.to_string())
+
+    # Future / Extrapolated years analysis
+    print_section("Data for Years > 2020 (extrapolated?)")
+    future_df = df[df["crop_year"] > 2020]
+    print(f"Records with year > 2020: {len(future_df)}")
+    if not future_df.empty:
+        print(future_df.groupby(["crop_year", "crop"])["yield_kg_ha"].mean().unstack().round(1).to_string())
+
+    # Target Distribution & Skewness Analysis
+    print_section("Target Variable Distribution (yield_kg_ha)")
+    y = df["yield_kg_ha"]
+    print(f"  Count  : {len(y):,}")
+    print(f"  Min    : {y.min():,.1f}")
+    print(f"  P5     : {y.quantile(0.05):,.1f}")
+    print(f"  P25    : {y.quantile(0.25):,.1f}")
+    print(f"  Median : {y.median():,.1f}")
+    print(f"  Mean   : {y.mean():,.1f}")
+    print(f"  P75    : {y.quantile(0.75):,.1f}")
+    print(f"  P95    : {y.quantile(0.95):,.1f}")
+    print(f"  Max    : {y.max():,.1f}")
+    print(f"  Std    : {y.std():,.1f}")
+    print(f"  Skew   : {y.skew():.3f}")
+
+    y_log = np.log1p(y)
+    print("\n  log1p target stats:")
+    print(f"  Min log1p: {y_log.min():.3f}")
+    print(f"  Max log1p: {y_log.max():.3f}")
+    print(f"  Mean log1p: {y_log.mean():.3f}")
+    print(f"  Skew log1p: {y_log.skew():.3f}")
+
+
+def run_audit() -> None:
+    """Execute complete dataset audit pipeline."""
+    audit_raw_dataset(RAW_DATA_PATH)
+    audit_cleaned_dataset(CLEANED_DATA_PATH)
+    print("\n=== AUDIT COMPLETE ===")
+
+
+if __name__ == "__main__":
+    run_audit()
